@@ -97,6 +97,6 @@ public class KruskalPrimController {
         }
         Collections.shuffle(edgePairs); // orden aleatorio
 
-        util.FXUtil.drawGraph(graph, paneGraph);
+       util.FXUtil.drawGraph(graph, paneGraph);
     }
 }

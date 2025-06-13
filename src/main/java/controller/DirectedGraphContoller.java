@@ -13,13 +13,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-
 import java.util.*;
-
 import static util.Utility.random;
 
 public class DirectedGraphContoller {
-
 
     @FXML private Text titleText;
     @FXML private Button randomizeButton;
@@ -38,25 +35,26 @@ public class DirectedGraphContoller {
     @FXML private TextArea outputTextArea;
     @FXML private Canvas graphCanvas;
 
-   //constantes para dibujar la figura: asi solo llamo a la constante
-    private static final double RADIO_VERTICE = 25;
-    private static final double TAMANO_PUNTA_FLECHA = 10;
-    private static final double ESPACIADO_CIRCULAR = 0.85;
+    // Solo se llama a las constates cuando se va a usar en drwa
+    private static final double RADIO_VERTICE = 25; // Radio del círculo que representa un vértice
+    private static final double TAMANO_PUNTA_FLECHA = 10; // Tamaño del triángulo de la punta de flecha
+    private static final double FACTOR_ESPACIADO_CIRCULAR = 0.85;
     private static final double RESALTADO_ARISTA = 8.0;
-    private static final int NUM_VERTICES = 10;
-    private static final int PESO_MIN_MATRIZ = 1;
-    private static final int PESO_MAX_MATRIZ = 50;
-    private static final int PESO_MIN_LISTA = 51;
-    private static final int PESO_MAX_LISTA = 100;
-    private static final int PESO_MIN_LISTA_ENLAZADA = 101;
-    private static final int PESO_MAX_LISTA_ENLAZADA = 150;
-    private static final int MAX_CONEXIONES_POR_VERTICE = 5;
+    // por aquello la info:
+    private static final int NUM_VERTICES = 10; // Número fijo de vértices en los grafos generados
+    private static final int PESO_MIN_MATRIZ = 1; // Peso mínimo para aristas en grafo de matriz
+    private static final int PESO_MAX_MATRIZ = 50; // Peso máximo para aristas en grafo de matriz
+    private static final int PESO_MIN_LISTA = 51; // Peso mínimo para aristas en grafo de lista
+    private static final int PESO_MAX_LISTA = 100; // Peso máximo para aristas en grafo de lista
+    private static final int PESO_MIN_LISTA_ENLAZADA = 101; // Peso mínimo para aristas en grafo
+    private static final int PESO_MAX_LISTA_ENLAZADA = 150; // Peso máximo para aristas en grafo
+    private static final int MAX_CONEXIONES_POR_VERTICE = 5; // Máximo de aristas x vértice
 
-    // --- Clase Interna para la Posición de un Vértice ---
-    // Almacena los datos del vértice y su posición en el lienzo para dibujarlo.
+    // --- Clase Interna para la Posición de un Vértice
+    // Almacena los datos del vértice y su posición ene canva
     private static class PosicionVertice {
-        Object datosVertice;
-        Point2D posicion;
+        Object datosVertice; // datos del vertex
+        Point2D posicion;   // ya sea pos x o y
 
         public PosicionVertice(Object datosVertice, Point2D posicion) {
             this.datosVertice = datosVertice;
@@ -64,16 +62,15 @@ public class DirectedGraphContoller {
         }
     }
 
-    // --- Clase Interna para la Información de una Arista Dibujada ---
-    // Guarda los detalles de una arista que se ha dibujado en el Canvas,
-    // incluyendo sus puntos de inicio y fin ajustados para la interacción.
+    // --- Clase Interna para la Información de una Arista
+    // Guarda los detalles de una arista que se ha dibujado en el Canva
     private static class InformacionDibujoArista {
-        Object origen;
-        Object destino;
-        int peso;
-        Point2D puntoInicio;
-        Point2D puntoFin;
-        boolean estaSobre;
+        Object origen;      //  origen de la arista
+        Object destino;     //  destino de la arista
+        int peso;           // Peso
+        Point2D puntoInicio; // Punto de inicio ajustado de la línea
+        Point2D puntoFin;   // Punto de fin ajustado de la línea
+        boolean estaSobre;  // Indica si el ratón está actualmente sobre esta arista
 
         public InformacionDibujoArista(Object origen, Object destino, int peso, Point2D puntoInicio, Point2D puntoFin) {
             this.origen = origen;
@@ -84,19 +81,17 @@ public class DirectedGraphContoller {
             this.estaSobre = false;
         }
 
+        public boolean isNear(Point2D mouse, double puntLimit) {
 
-        public boolean isNear(Point2D mouse, double puntoMax) {
-
-            double minX = Math.min(puntoInicio.getX(), puntoFin.getX()) - puntoMax;
-            double maxX = Math.max(puntoInicio.getX(), puntoFin.getX()) + puntoMax;
-            double minY = Math.min(puntoInicio.getY(), puntoFin.getY()) - puntoMax;
-            double maxY = Math.max(puntoInicio.getY(), puntoFin.getY()) + puntoMax;
+            double minX = Math.min(puntoInicio.getX(), puntoFin.getX()) - puntLimit;
+            double maxX = Math.max(puntoInicio.getX(), puntoFin.getX()) + puntLimit;
+            double minY = Math.min(puntoInicio.getY(), puntoFin.getY()) - puntLimit;
+            double maxY = Math.max(puntoInicio.getY(), puntoFin.getY()) + puntLimit;
 
             if (!((mouse.getX() >= minX && mouse.getX() <= maxX) &&
                     (mouse.getY() >= minY && mouse.getY() <= maxY))) {
                 return false;
             }
-
             double x1 = puntoInicio.getX();
             double y1 = puntoInicio.getY();
             double x2 = puntoFin.getX();
@@ -106,82 +101,78 @@ public class DirectedGraphContoller {
 
             double longitudCuadrado = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
             if (longitudCuadrado == 0.0) {
-                return mouse.distance(puntoInicio) <= puntoMax;
+                return mouse.distance(puntoInicio) <= puntLimit;
             }
-            double parametroT = ((x0 - x1) * (x2 - x1) + (y0 - y1) * (y2 - y1)) / longitudCuadrado;
+            double limite = ((x0 - x1) * (x2 - x1) + (y0 - y1) * (y2 - y1)) / longitudCuadrado;
+            limite = Math.max(0, Math.min(1, limite));
 
-            parametroT = Math.max(0, Math.min(1, parametroT));
-            double proyX = x1 + parametroT * (x2 - x1);
-            double proyY = y1 + parametroT * (y2 - y1);
-            return mouse.distance(proyX, proyY) <= puntoMax;
+            double proyX = x1 + limite * (x2 - x1);
+            double proyY = y1 + limite * (y2 - y1);
+
+            return mouse.distance(proyX, proyY) <= puntLimit;
         }
     }
 
+    // Lista para almacenar los datos del vértice y sus pos
     private List<PosicionVertice> listaPosicionesVertices;
-
+    // Lista para almacenar información sobre las aristas
     private List<InformacionDibujoArista> aristasDibujadas;
-
+    // grafo que se ha generado actualmente
     private Object grafoActual;
 
+    // Para zoom
     private double factorZoomActual = 1.0;
     private static final double INCREMENTO_FACTOR_ZOOM = 1.1;
     private static final double ZOOM_MAXIMO = 3.0;
     private static final double ZOOM_MINIMO = 0.5;
 
-
+// inializa todo
     @FXML
     public void initialize() {
 
         randomizeButton.setOnAction(e -> generarGrafoAleatorio());
+        containsVertexButton.setOnAction(e -> handleContainsVertex());
+        containsEdgeButton.setOnAction(e -> handleContainsEdge());
+        toStringButton.setOnAction(e -> displayGraphToString());
+        bfsTourButton.setOnAction(e -> handleBFSTour());
+        dfsTourButton.setOnAction(e -> handleDFSTour());
+
         listaPosicionesVertices = new ArrayList<>();
-        aristasDibujadas = new ArrayList<>();
-
-        setupZoom();
+        aristasDibujadas = new ArrayList<>(); // Inicializa la lista para las aristas dibujadas
+        configZoom();
         setupInteraccionAristas();
-
-
         toStringContentText.setText("");
     }
 
-
-    private void setupZoom() {
-
+    private void configZoom() {
         graphCanvas.setOnScroll((ScrollEvent evento) -> {
             evento.consume();
-
 
             double deltaZoom = evento.getDeltaY() > 0 ? INCREMENTO_FACTOR_ZOOM : 1 / INCREMENTO_FACTOR_ZOOM;
             double nuevoFactorZoom = factorZoomActual * deltaZoom;
 
-
             if (nuevoFactorZoom > ZOOM_MAXIMO) nuevoFactorZoom = ZOOM_MAXIMO;
             if (nuevoFactorZoom < ZOOM_MINIMO) nuevoFactorZoom = ZOOM_MINIMO;
 
-
             double xRaton = evento.getX();
             double yRaton = evento.getY();
-
 
             double factorEscala = nuevoFactorZoom / factorZoomActual;
 
             graphCanvas.setTranslateX(xRaton - factorEscala * (xRaton - graphCanvas.getTranslateX()));
             graphCanvas.setTranslateY(yRaton - factorEscala * (yRaton - graphCanvas.getTranslateY()));
-
             graphCanvas.setScaleX(nuevoFactorZoom);
             graphCanvas.setScaleY(nuevoFactorZoom);
 
             factorZoomActual = nuevoFactorZoom;
         });
 
-
         graphCanvas.setOnMousePressed(evento -> {
             if (evento.isMiddleButtonDown()) {
-
                 double inicioX = evento.getSceneX();
                 double inicioY = evento.getSceneY();
                 double traslacionInicialX = graphCanvas.getTranslateX();
                 double traslacionInicialY = graphCanvas.getTranslateY();
-
 
                 graphCanvas.setOnMouseDragged(eventoArrastre -> {
                     if (eventoArrastre.isMiddleButtonDown()) {
@@ -194,7 +185,6 @@ public class DirectedGraphContoller {
                     }
                 });
 
-
                 graphCanvas.setOnMouseReleased(eventoLiberacion -> {
                     graphCanvas.setOnMouseDragged(null);
                     graphCanvas.setOnMouseReleased(null);
@@ -202,9 +192,8 @@ public class DirectedGraphContoller {
             }
         });
     }
-
+    // conf para aristas
     private void setupInteraccionAristas() {
-        // Configura el evento de movimiento del ratón sobre el Canvas
         graphCanvas.setOnMouseMoved(evento -> {
 
             double xRatonGrafo = (evento.getX() - graphCanvas.getTranslateX()) / graphCanvas.getScaleX();
@@ -231,14 +220,13 @@ public class DirectedGraphContoller {
                     }
                 }
             }
-
+            // Si el estado de resaltado de alguna arista cambió, redibuja
             if (necesitaRedibujar) {
                 if (grafoActual != null) {
                     drawGraph(grafoActual);
                 }
             }
-
-            // Actualiza el texto en toStringContentText según la arista actualmente sobre la que está el ratón
+            // Actualiza el texto
             if (nuevaAristaSobrepuesta != null) {
                 toStringContentText.setText("Arista: " + nuevaAristaSobrepuesta.origen + " -> " + nuevaAristaSobrepuesta.destino +
                         " | Peso: " + nuevaAristaSobrepuesta.peso);
@@ -249,6 +237,288 @@ public class DirectedGraphContoller {
                 }
             }
         });
+    }
+    //contains
+    @FXML
+    private void handleContainsVertex() {
+
+        if (grafoActual == null) {
+            outputTextArea.setText("Primero selecciona o genera un grafo.");
+            return;
+        }
+
+        TextInputDialog dialogo = new TextInputDialog();
+        dialogo.setTitle("Verificar Vértice");
+        dialogo.setHeaderText("Ingresa el vértice que deseas buscar:");
+        dialogo.setContentText("Vértice:");
+
+        Optional<String> resultado = dialogo.showAndWait();
+        if (resultado.isPresent()) {
+            String entradaVertice = resultado.get().trim();
+            try {
+
+                Object verticeBuscado = convertirEntradaAVertice(entradaVertice);
+
+                if (grafoActual instanceof DirectedAdjacencyMatrixGraph matrixGraph) {
+                    if (matrixGraph.containsVertex(verticeBuscado)) {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" SÍ está en el grafo ✅");
+                    } else {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" NO está en el grafo ❌");
+                    }
+                } else if (grafoActual instanceof DirectedAdjacencyListGraph listGraph) {
+                    if (listGraph.containsVertex(verticeBuscado)) {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" SÍ está en el grafo ✅");
+                    } else {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" NO está en el grafo ❌");
+                    }
+                } else if (grafoActual instanceof DirectedSinglyLinkedListGraph linkedGraph) {
+                    if (linkedGraph.containsVertex(verticeBuscado)) {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" SÍ está en el grafo ✅");
+                    } else {
+                        outputTextArea.setText("El vértice \"" + entradaVertice + "\" NO está en el grafo ❌");
+                    }
+                } else {
+                    outputTextArea.setText("Tipo de grafo no soportado para esta operación.");
+                }
+
+            } catch (IllegalArgumentException e) {
+                outputTextArea.setText("Error de entrada: " + e.getMessage());
+            } catch (Exception e) {
+                outputTextArea.setText("Error al verificar vértice: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    // contains
+    @FXML
+    private void handleContainsEdge() {
+
+        if (grafoActual == null) {
+            outputTextArea.setText("Primero selecciona o genera un grafo.");
+            return;
+        }
+        TextInputDialog dialogo = new TextInputDialog();
+        dialogo.setTitle("Verificar Arista");
+        dialogo.setHeaderText("Ingresa los vértices de la arista (origen, destino):");
+        dialogo.setContentText("Vértices (ejemplo: 10 , 20):");
+
+        Optional<String> resultado = dialogo.showAndWait();
+        if (resultado.isPresent()) {
+            String[] partes = resultado.get().split(",");
+            if (partes.length != 2) {
+                outputTextArea.setText("Formato inválido. Ingresa: Origen , Destino");
+                return;
+            }
+            String textoOrigen = partes[0].trim();
+            String textoDestino = partes[1].trim();
+            try {
+
+                Object origenBuscado = convertirEntradaAVertice(textoOrigen);
+                Object destinoBuscado = convertirEntradaAVertice(textoDestino);
+
+                boolean aristaEncontrada = false;
+                if (grafoActual instanceof DirectedAdjacencyMatrixGraph matrixGraph) {
+                    aristaEncontrada = matrixGraph.containsEdge(origenBuscado, destinoBuscado);
+                } else if (grafoActual instanceof DirectedAdjacencyListGraph listGraph) {
+                    aristaEncontrada = listGraph.containsEdge(origenBuscado, destinoBuscado);
+                } else if (grafoActual instanceof DirectedSinglyLinkedListGraph linkedGraph) {
+                    aristaEncontrada = linkedGraph.containsEdge(origenBuscado, destinoBuscado);
+                } else {
+                    outputTextArea.setText("Tipo de grafo no valido");
+                    return;
+                }
+
+                if (aristaEncontrada) {
+                    outputTextArea.setText("La arista \"" + textoOrigen + " -> " + textoDestino + "\" SÍ está en el grafo ✅");
+                } else {
+                    outputTextArea.setText("La arista \"" + textoOrigen + " -> " + textoDestino + "\" NO está en el grafo ❌");
+                }
+            } catch (IllegalArgumentException e) {
+
+                outputTextArea.setText("Error de entrada: " + e.getMessage());
+            } catch (Exception e) {
+
+                outputTextArea.setText("Error al verificar arista: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    // para el toStribng
+    @FXML
+    private void displayGraphToString() {
+        if (grafoActual == null) {
+            outputTextArea.setText("Primero selecciona o genera un grafo.");
+            return;
+        }
+
+        outputTextArea.setText(grafoActual.toString());
+    }
+
+   // recorrido
+    @FXML
+    private void handleBFSTour() {
+        if (grafoActual == null) {
+            outputTextArea.setText("Primero selecciona o genera un grafo para realizar el recorrido BFS.");
+            return;
+        }
+
+        TextInputDialog dialogoInicio = new TextInputDialog();
+        dialogoInicio.setTitle("Recorrido BFS");
+        dialogoInicio.setHeaderText("Ingresa el inicio para el recorrido BFS:");
+        dialogoInicio.setContentText("Vértice de Inicio:");
+
+        Optional<String> resultadoInicio = dialogoInicio.showAndWait();
+        if (resultadoInicio.isPresent()) {
+            String entradaInicio = resultadoInicio.get().trim();
+            try {
+                Object verticeInicio = convertirEntradaAVertice(entradaInicio);
+
+                Queue<Object> cola = new LinkedList<>();
+
+                Set<Object> visitados = new HashSet<>();
+
+                StringBuilder resultadoRecorrido = new StringBuilder("Recorrido BFS: ");
+
+                boolean verticeExiste = false;
+                if (grafoActual instanceof DirectedAdjacencyMatrixGraph matrixGraph) {
+                    verticeExiste = matrixGraph.containsVertex(verticeInicio);
+                } else if (grafoActual instanceof DirectedAdjacencyListGraph listGraph) {
+                    verticeExiste = listGraph.containsVertex(verticeInicio);
+                } else if (grafoActual instanceof DirectedSinglyLinkedListGraph linkedGraph) {
+                    verticeExiste = linkedGraph.containsVertex(verticeInicio);
+                }
+
+                if (!verticeExiste) {
+                    outputTextArea.setText("Error: El vértice de inicio '" + entradaInicio + "' no existe en el grafo.");
+                    return;
+                }
+
+                cola.add(verticeInicio);
+                visitados.add(verticeInicio);
+                resultadoRecorrido.append(verticeInicio);
+                while (!cola.isEmpty()) {
+                    Object verticeActual = cola.poll();
+
+                    List<Object> vecinos = obtenerVecinosDeVertice(grafoActual, verticeActual);
+
+                    for (Object vecino : vecinos) {
+
+                        if (!visitados.contains(vecino)) {
+                            visitados.add(vecino);
+                            cola.add(vecino);
+                            resultadoRecorrido.append(" -> ").append(vecino);
+                        }
+                    }
+                }
+                outputTextArea.setText(resultadoRecorrido.toString());
+
+            } catch (IllegalArgumentException e) {
+                outputTextArea.setText("Error de entrada para BFS: " + e.getMessage());
+            } catch (Exception e) {
+                outputTextArea.setText("Error al realizar el recorrido BFS: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+// recorrido
+    @FXML
+    private void handleDFSTour() {
+        if (grafoActual == null) {
+            outputTextArea.setText("Primero selecciona o genera un grafo para realizar el recorrido DFS.");
+            return;
+        }
+
+        TextInputDialog dialogoInicio = new TextInputDialog();
+        dialogoInicio.setTitle("Recorrido DFS");
+        dialogoInicio.setHeaderText("Ingresa el inicio para el recorrido DFS:");
+        dialogoInicio.setContentText("Vértice de Inicio:");
+
+        Optional<String> resultadoInicio = dialogoInicio.showAndWait();
+        if (resultadoInicio.isPresent()) {
+            String entradaInicio = resultadoInicio.get().trim();
+            try {
+                Object verticeInicio = convertirEntradaAVertice(entradaInicio);
+
+
+                Stack<Object> pila = new Stack<>();
+
+                Set<Object> visitados = new HashSet<>();
+                StringBuilder resultadoRecorrido = new StringBuilder("Recorrido DFS: ");
+
+
+                boolean verticeExiste = false;
+                if (grafoActual instanceof DirectedAdjacencyMatrixGraph matrixGraph) {
+                    verticeExiste = matrixGraph.containsVertex(verticeInicio);
+                } else if (grafoActual instanceof DirectedAdjacencyListGraph listGraph) {
+                    verticeExiste = listGraph.containsVertex(verticeInicio);
+                } else if (grafoActual instanceof DirectedSinglyLinkedListGraph linkedGraph) {
+                    verticeExiste = linkedGraph.containsVertex(verticeInicio);
+                }
+
+                if (!verticeExiste) {
+                    outputTextArea.setText("Error: El vértice de inicio '" + entradaInicio + "' no existe en el grafo.");
+                    return;
+                }
+                pila.push(verticeInicio);
+
+                while (!pila.isEmpty()) {
+                    Object verticeActual = pila.pop();
+
+                    // Si el vértice no ha sido visitado
+                    if (!visitados.contains(verticeActual)) {
+                        visitados.add(verticeActual); // Márcalo como visitado
+                        resultadoRecorrido.append(verticeActual).append(" -> ");
+
+                        List<Object> vecinos = obtenerVecinosDeVertice(grafoActual, verticeActual);
+                        Collections.reverse(vecinos);
+                        for (Object vecino : vecinos) {
+                            if (!visitados.contains(vecino)) {
+                                pila.push(vecino);
+                            }
+                        }
+                    }
+                }
+                if (resultadoRecorrido.length() > "Recorrido DFS: ".length()) {
+                    resultadoRecorrido.setLength(resultadoRecorrido.length() - 4); // Quita el último " -> "
+                }
+                outputTextArea.setText(resultadoRecorrido.toString());
+
+            } catch (IllegalArgumentException e) {
+                outputTextArea.setText("Error de entrada para DFS: " + e.getMessage());
+            } catch (Exception e) {
+                outputTextArea.setText("Error al realizar el recorrido DFS: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private List<Object> obtenerVecinosDeVertice(Object grafo, Object vertice) throws Exception {
+        List<Object> vecinos = new ArrayList<>();
+        if (grafo instanceof DirectedAdjacencyMatrixGraph grafoMatriz) {
+            List<Object> todosLosVertices = grafoMatriz.getVertices();
+
+            for (Object posibleVecino : todosLosVertices) {
+
+                if (grafoMatriz.getWeight(vertice, posibleVecino) != 0) {
+                    vecinos.add(posibleVecino);
+                }
+            }
+        } else if (grafo instanceof DirectedAdjacencyListGraph grafoLista) {
+
+            for (DirectedAdjacencyListGraph.EdgeInfo arista : grafoLista.getEdges()) {
+                if (Objects.equals(arista.source, vertice)) {
+                    vecinos.add(arista.destination);
+                }
+            }
+        } else if (grafo instanceof DirectedSinglyLinkedListGraph grafoEnlazado) {
+            for (DirectedSinglyLinkedListGraph.EdgeInfo arista : grafoEnlazado.getEdges()) {
+                if (Objects.equals(arista.source, vertice)) {
+                    vecinos.add(arista.destination);
+                }
+            }
+        }
+        return vecinos;
     }
 
     private void generarGrafoAleatorio() {
@@ -281,9 +551,7 @@ public class DirectedGraphContoller {
             e.printStackTrace();
         }
     }
-
     private void generarGrafoConMatrizDeAdyacencia(DirectedAdjacencyMatrixGraph grafo) throws Exception {
-        // Genera vértices de tipo entero únicos
         List<Integer> listaVertices = new ArrayList<>();
         while (listaVertices.size() < NUM_VERTICES) {
             int num = random(100); // Números entre 0 y 99
@@ -291,7 +559,6 @@ public class DirectedGraphContoller {
                 listaVertices.add(num);
             }
         }
-
         // Añade los vértices al grafo
         for (Integer num : listaVertices) {
             grafo.addVertex(num);
@@ -319,17 +586,15 @@ public class DirectedGraphContoller {
             }
         }
 
-        // Añade los vértices al grafo
         for (Character letra : listaVertices) {
             grafo.addVertex(letra);
         }
 
-        // Añade aristas con pesos aleatorios
         for (int i = 0; i < NUM_VERTICES; i++) {
             int conexiones = random(MAX_CONEXIONES_POR_VERTICE); // Número aleatorio de conexiones (0-4)
             for (int j = 0; j < conexiones; j++) {
                 int indiceDestino = random(NUM_VERTICES); // Índice aleatorio para el vértice de destino
-                if (indiceDestino != i) { // Evita bucles (aristas de un vértice a sí mismo)
+                if (indiceDestino != i) {
                     int peso = random(PESO_MAX_LISTA - PESO_MIN_LISTA + 1) + PESO_MIN_LISTA;
                     grafo.addEdgeWeight(listaVertices.get(i), listaVertices.get(indiceDestino), peso);
                 }
@@ -348,7 +613,6 @@ public class DirectedGraphContoller {
         List<String> monumentosMezclados = new ArrayList<>(Arrays.asList(todosLosMonumentos));
         Collections.shuffle(monumentosMezclados); // Mezcla para seleccionar monumentos únicos aleatorios
 
-        // Selecciona NUM_VERTICES monumentos únicos
         List<String> verticesSeleccionados = new ArrayList<>();
         for (int i = 0; i < NUM_VERTICES; i++) {
             verticesSeleccionados.add(monumentosMezclados.get(i));
@@ -373,7 +637,6 @@ public class DirectedGraphContoller {
         outputTextArea.setText(grafo.toString());
     }
 
-
     private void drawGraph(Object grafo) {
         GraphicsContext contextoGrafico = graphCanvas.getGraphicsContext2D();
         contextoGrafico.clearRect(0, 0, graphCanvas.getWidth(), graphCanvas.getHeight()); // Limpia el Canvas
@@ -383,6 +646,7 @@ public class DirectedGraphContoller {
         List<InformacionDibujoArista> aristasDibujadasAnteriores = new ArrayList<>(aristasDibujadas); // Copia el estado actual
         aristasDibujadas.clear(); // Ahora sí, limpia para el nuevo ciclo de dibujo
 
+        //  Dibujar Vértices
         contextoGrafico.setStroke(Color.BLACK); // Color del borde del vértice
         contextoGrafico.setLineWidth(1.5); // Grosor del borde
         contextoGrafico.setFill(Color.LIGHTBLUE); // Color de relleno del vértice
@@ -412,12 +676,10 @@ public class DirectedGraphContoller {
             return; // No hay vértices para dibujar
         }
 
+        // Posiciones de los Vértices
         double centroX = graphCanvas.getWidth() / 2; // Centro X del Canvas
         double centroY = graphCanvas.getHeight() / 2; // Centro Y del Canvas
-        // Calcula el radio del círculo en el que se colocarán los vértices.
-        // Se basa en la dimensión más pequeña del Canvas para asegurar que los vértices encajen.
-        // Se multiplica por ESPACIADO_CIRCULAR para ajustar el espacio entre los nodos.
-        double radio = Math.min(centroX, centroY) * ESPACIADO_CIRCULAR;
+        double radio = Math.min(centroX, centroY) * FACTOR_ESPACIADO_CIRCULAR;
 
         for (int i = 0; i < listaVertices.size(); i++) {
             Object datosVertice = listaVertices.get(i);
@@ -426,14 +688,11 @@ public class DirectedGraphContoller {
             double y = centroY + radio * Math.sin(angulo); // Posición Y del vértice
             Point2D posicion = new Point2D(x, y);
 
-            // Almacena la posición del vértice
             listaPosicionesVertices.add(new PosicionVertice(datosVertice, posicion));
 
-            // Dibuja el círculo del vértice
             contextoGrafico.strokeOval(posicion.getX() - RADIO_VERTICE, posicion.getY() - RADIO_VERTICE, RADIO_VERTICE * 2, RADIO_VERTICE * 2);
             contextoGrafico.fillOval(posicion.getX() - RADIO_VERTICE, posicion.getY() - RADIO_VERTICE, RADIO_VERTICE * 2, RADIO_VERTICE * 2);
 
-            // Dibuja la etiqueta del vértice (el texto)
             contextoGrafico.setFill(Color.BLACK); // Establece el color del texto
             String etiquetaVertice = String.valueOf(datosVertice);
             // Abbrevia etiquetas de tipo String muy largas para que quepan
@@ -444,10 +703,9 @@ public class DirectedGraphContoller {
             contextoGrafico.setFill(Color.LIGHTBLUE); // Restaura el color de relleno para los siguientes círculos
         }
 
+        // Dibujar Aristas
+        contextoGrafico.setFont(new Font("Arial", 10)); // Fuente para los pesos de las aristas (aunque no se dibujen)
 
-        contextoGrafico.setFont(new Font("Arial", 10));
-
-        // --- Dibuja las Aristas ---
         try {
             if (grafo instanceof DirectedAdjacencyMatrixGraph grafoMatriz) {
                 List<Object> verticesMatriz = grafoMatriz.getVertices();
@@ -474,7 +732,6 @@ public class DirectedGraphContoller {
                                 double finAjustadoX = fin.getX() - unidadX * RADIO_VERTICE;
                                 double finAjustadoY = fin.getY() - unidadY * RADIO_VERTICE;
 
-                                // Crea la información de la arista para la interacción
                                 InformacionDibujoArista infoArista = new InformacionDibujoArista(datosVerticeOrigen, datosVerticeDestino, peso,
                                         new Point2D(inicioAjustadoX, inicioAjustadoY),
                                         new Point2D(finAjustadoX, finAjustadoY));
@@ -585,8 +842,6 @@ public class DirectedGraphContoller {
                             }
                         }
                         aristasDibujadas.add(infoArista);
-
-                        // Establece las propiedades de dibujo según el estado de resaltado
                         if (infoArista.estaSobre) {
                             contextoGrafico.setStroke(Color.RED);
                             contextoGrafico.setLineWidth(5.0);
@@ -606,14 +861,13 @@ public class DirectedGraphContoller {
         }
     }
 
-
     private Point2D findVertexPosition(Object datosVertice) {
         for (PosicionVertice pv : listaPosicionesVertices) {
             if (util.Utility.compare(pv.datosVertice, datosVertice) == 0) {
                 return pv.posicion;
             }
         }
-        return null;
+        return null; // Vértice no encontrado
     }
 
     private void drawArrow(GraphicsContext contextoGrafico, double inicioX, double inicioY, double finX, double finY, double radioVertice) {
@@ -621,32 +875,44 @@ public class DirectedGraphContoller {
         double deltaY = finY - inicioY;
         double distancia = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (distancia == 0) return; // Evita división por cero para vértices en la misma ubicación
+        if (distancia == 0) return;
 
-        // Normaliza el vector para obtener un vector unitario
         double unidadX = deltaX / distancia;
         double unidadY = deltaY / distancia;
-
-        // Ajusta los puntos de inicio y fin para dibujar desde/hacia el borde del círculo
         double inicioAjustadoX = inicioX + unidadX * radioVertice;
         double inicioAjustadoY = inicioY + unidadY * radioVertice;
         double finAjustadoX = finX - unidadX * radioVertice;
         double finAjustadoY = finY - unidadY * radioVertice;
 
-        // Dibuja la línea principal de la flecha
         contextoGrafico.strokeLine(inicioAjustadoX, inicioAjustadoY, finAjustadoX, finAjustadoY);
 
-        // Calcula y dibuja la punta de flecha (triángulo)
         double anguloFlecha = Math.atan2(deltaY, deltaX); // Ángulo de la línea de la flecha
 
-        // Calcula los dos puntos para el triángulo de la punta de flecha
         double punto1X = finAjustadoX - TAMANO_PUNTA_FLECHA * Math.cos(anguloFlecha - Math.PI / 6);
         double punto1Y = finAjustadoY - TAMANO_PUNTA_FLECHA * Math.sin(anguloFlecha - Math.PI / 6);
         double punto2X = finAjustadoX - TAMANO_PUNTA_FLECHA * Math.cos(anguloFlecha + Math.PI / 6);
         double punto2Y = finAjustadoY - TAMANO_PUNTA_FLECHA * Math.sin(anguloFlecha + Math.PI / 6);
 
-        // Dibuja el triángulo de la punta de flecha relleno
         contextoGrafico.fillPolygon(new double[]{finAjustadoX, punto1X, punto2X}, new double[]{finAjustadoY, punto1Y, punto2Y}, 3);
     }
 
+
+    private Object convertirEntradaAVertice(String entrada) throws IllegalArgumentException {
+        if (grafoActual instanceof DirectedAdjacencyMatrixGraph) {
+            try {
+                return Integer.parseInt(entrada); // entero
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("El vértice debe ser un NÚMERO ENTERO para el grafo de Matriz de Adyacencia.");
+            }
+        } else if (grafoActual instanceof DirectedAdjacencyListGraph) {
+            if (entrada.length() == 1) {
+                return entrada.charAt(0); // letras una por una
+            } else {
+                throw new IllegalArgumentException("El vértice debe ser UN SOLO CARÁCTER para el grafo de Lista de Adyacencia.");
+            }
+        } else if (grafoActual instanceof DirectedSinglyLinkedListGraph) {
+            return entrada; // cadena texto
+        }
+        throw new IllegalArgumentException("Tipo de grafo no reconocido para la conversión de vértice.");
+    }
 }
