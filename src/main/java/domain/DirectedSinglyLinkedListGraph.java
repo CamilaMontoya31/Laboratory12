@@ -239,6 +239,8 @@ public class DirectedSinglyLinkedListGraph implements Graph {
 
         return result;
     }
+
+    @Override
     public List<Object> getVertices() throws ListException {
         List<Object> vertices = new ArrayList<>();
         for (int i = 1; i <= vertexList.size(); i++) {
@@ -282,4 +284,19 @@ public class DirectedSinglyLinkedListGraph implements Graph {
         return edges;
     }
 
+    @Override
+    public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
+        // Buscar el índice del vértice
+        int idx = indexOf(v);
+        if (idx == -1)
+            throw new GraphException("Vértice no encontrado: " + v);
+        List<EdgeWeight> edges = new ArrayList<>();
+        // Acceder a su lista enlazada de aristas
+        Vertex vert = (Vertex) vertexList.getNode(idx).data;
+        int size = vert.edgesList.isEmpty()? 0 : vert.edgesList.size();
+        for (int j = 1; j <= size; j++) {
+            edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
+        }
+        return edges;
+    }
 }

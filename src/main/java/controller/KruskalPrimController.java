@@ -241,11 +241,11 @@ public class KruskalPrimController {
 
     }
 
-    public void algorithms(){
+    public void algorithms() throws GraphException, ListException {
         List<EdgeWeight> allEdges = new ArrayList<>();
-        for (Integer u : getGraph().getAllVertices()) {
+        for (Object u : Objects.requireNonNull(getGraph()).getVertices()) {
             for (EdgeWeight ew : graphList.getAdjList(u)) {
-                allEdges.add(new EdgeWeight(u, (Integer)ew.getVertex(), (Integer)ew.getWeight()));
+                allEdges.add(new EdgeWeight(ew.getEdge(), ew.getWeight()));
             }
         }
 

@@ -35,8 +35,9 @@ public class Utility {
 
     public static int random(int min, int max) {
         // Generación de un número aleatorio en el rango [min, max]
-        return 1 + random.nextInt(max - min + 1);
+        return min + random.nextInt(max - min + 1);
     }
+
     public static int compare(Object a, Object b) {
         switch (instanceOf(a, b)){
             case "Integer":

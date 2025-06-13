@@ -7,6 +7,9 @@ import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SinglyLinkedListGraph implements Graph {
     public SinglyLinkedList vertexList; //lista enlazada de vértices
 
@@ -206,6 +209,18 @@ public class SinglyLinkedListGraph implements Graph {
         return info;
     }
 
+    @Override
+    public List<Object> getVertices() throws ListException {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 1; i <= vertexList.size(); i++) {
+            Vertex vertex = (Vertex) vertexList.getNode(i).getData();
+            if (vertex != null) {
+                vertices.add(vertex.data);
+            }
+        }
+        return vertices;
+    }
+
     //setteamos el atributo visitado del vertice respectivo
     private void setVisited(boolean value) throws ListException {
         for (int i=1; i<=vertexList.size(); i++) {
@@ -245,4 +260,19 @@ public class SinglyLinkedListGraph implements Graph {
         return result;
     }
 
+    @Override
+    public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
+        // Buscar el índice del vértice
+        int idx = indexOf(v);
+        if (idx == -1)
+            throw new GraphException("Vértice no encontrado: " + v);
+        List<EdgeWeight> edges = new ArrayList<>();
+        // Acceder a su lista enlazada de aristas
+        Vertex vert = (Vertex) vertexList.getNode(idx).data;
+        int size = vert.edgesList.isEmpty()? 0 : vert.edgesList.size();
+        for (int j = 1; j <= size; j++) {
+            edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
+        }
+        return edges;
+    }
 }
