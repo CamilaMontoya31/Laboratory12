@@ -39,16 +39,16 @@ public class HelloController {
         load("/ucr/lab/directedGraph.fxml");
     }
 
-    public void AdjacencyListGraph(ActionEvent actionEvent) {
-        load("/ucr/lab/listGraph.fxml");
+    public void Operations(ActionEvent actionEvent) {
+        load("/ucr/lab/operations.fxml");
     }
 
-    public void SinglyLinkedListGraph(ActionEvent actionEvent) {
-        load("/ucr/lab/linkedGraph.fxml");
+    public void KruskalPrim(ActionEvent actionEvent) {
+        load("/ucr/lab/kruskal_prim.fxml");
     }
 
-    public void MatrizOperations(ActionEvent actionEvent) {
-        load("/ucr/lab/matrixOperation.fxml");
+    public void Dijkstra(ActionEvent actionEvent) {
+        load("/ucr/lab/dijkstra.fxml");
     }
 
     @FXML

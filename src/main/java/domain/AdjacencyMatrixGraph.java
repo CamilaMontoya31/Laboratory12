@@ -7,10 +7,10 @@ import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
 public class AdjacencyMatrixGraph implements Graph {
-    private Vertex[] vertexList; //arreglo de objetos tupo vértice
-    private Object[][] adjacencyMatrix; //arreglo bidimensional
+    public Vertex[] vertexList; //arreglo de objetos tupo vértice
+    public Object[][] adjacencyMatrix; //arreglo bidimensional
     private int n; //max de elementos
-    private int counter; //contador de vertices
+    public int counter; //contador de vertices
 
     //para los recorridos dfs, bfs
     private LinkedStack stack;
