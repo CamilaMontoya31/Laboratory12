@@ -15,7 +15,7 @@
                     <Font name="Arial Bold Italic" size="30.0" />
                 </font>
             </Button>
-            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#AdjacencyMatrixGraph" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Matrix Graph" textFill="#000000b2">
+            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#DirectedGraph" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Directed Graph" textFill="#000000b2">
                 <font>
                     <Font name="Arial Bold Italic" size="22.0" />
                 </font>
