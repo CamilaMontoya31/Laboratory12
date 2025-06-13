@@ -1,16 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<BorderPane fx:id="bp" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="694.0" prefWidth="1006.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HelloController">
+    <left>
+        <VBox prefHeight="699.0" prefWidth="221.0" style="-fx-background-color: #c8d6d8;" BorderPane.alignment="CENTER">
+            <Button mnemonicParsing="false" onAction="#Home" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Home" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="30.0" />
+                </font>
+            </Button>
+            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#DirectedGraph" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Directed Graph" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="22.0" />
+                </font>
+            </Button>
+            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#AdjacencyListGraph" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="List Graph" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="19.0" />
+                </font>
+            </Button>
+            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#SinglyLinkedListGraph" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Linked Graph" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="19.0" />
+                </font>
+            </Button>
+            <Button layoutX="10.0" layoutY="72.0" mnemonicParsing="false" onAction="#MatrizOperations" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Matrix Operations" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="19.0" />
+                </font>
+            </Button>
+            <Button layoutX="10.0" layoutY="196.0" mnemonicParsing="false" onAction="#Exit" prefHeight="62.0" prefWidth="219.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 0px 0px 2px 0px;" text="Exit" textFill="#000000b2">
+                <font>
+                    <Font name="Arial Bold Italic" size="30.0" />
+                </font>
+            </Button>
+        </VBox>
+    </left>
+    <center>
+        <AnchorPane fx:id="ap" prefHeight="712.0" prefWidth="786.0" style="-fx-background-color: #afd6dc;" BorderPane.alignment="CENTER">
+            <Text fx:id="txtMessage" fill="#f7f7f7" layoutX="4.0" layoutY="360.0" strokeType="OUTSIDE" strokeWidth="0.0" style="visibility: #dde7ba;" text="Laboratory No. 10" textAlignment="CENTER" wrappingWidth="781.94921875">
+                <font>
+                    <Font name="Elephant" size="55.0" />
+                </font>
+            </Text>
+        </AnchorPane>
+    </center>
+</BorderPane>
