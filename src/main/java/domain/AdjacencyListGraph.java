@@ -1,10 +1,14 @@
 package domain;
 
 import domain.list.ListException;
+import domain.list.SinglyLinkedList;
 import domain.queue.LinkedQueue;
 import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AdjacencyListGraph implements Graph {
     private Vertex[] vertexList; //arreglo de objetos tupo vértice
@@ -231,5 +235,48 @@ public class AdjacencyListGraph implements Graph {
                 result+="\n......EDGES AND WEIGHTS: "+vertexList[i].edgesList.toString();
         }
         return result;
+    }
+
+    public SinglyLinkedList getAdjacencyListVertices(Object vertex) throws GraphException {
+        int index = indexOf(vertex);
+        if (index == -1) {
+            throw new GraphException("Vertex not found: " + vertex);
+        }
+        return vertexList[index].edgesList; // Retorna la lista de aristas (vecinos)
+    }
+    /**
+     * Devuelve una lista de todos los vértices (sus datos) almacenados en el grafo.
+     */
+    public List<Object> getAllVertices() throws ListException {
+        List<Object> vertices = new ArrayList<>();
+        // Recorremos el arreglo vertexList[0..counter-1]
+        for (int i = 0; i < counter; i++) {
+            vertices.add(vertexList[i].data);
+        }
+        return vertices;
+    }
+
+    /**
+     * Devuelve la lista de aristas (EdgeWeight) para un vértice dado.
+     * @param v el valor del vértice cuyas aristas buscamos
+     */
+    public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
+        List<EdgeWeight> edges = new ArrayList<>();
+        // Buscar el índice del vértice
+        int idx = -1;
+        for (int i = 0; i < counter; i++) {
+            if (vertexList[i].data.equals(v)) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx == -1) throw new GraphException("Vértice no encontrado: " + v);
+
+        // Acceder a su lista enlazada de aristas
+        Vertex vert = vertexList[idx];
+        for (int j = 1; j <= vert.edgesList.size(); j++) {
+            edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
+        }
+        return edges;
     }
 }

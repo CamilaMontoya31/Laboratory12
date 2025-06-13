@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="785.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.KruskalPrimController">
    <children>
       <Pane prefHeight="119.0" prefWidth="785.0" style="-fx-background-color: #d4eefa;">
@@ -63,6 +62,6 @@
             </Button>
          </children>
       </Pane>
-      <Pane fx:id="paneGraph" layoutX="-3.0" layoutY="323.0" prefHeight="366.0" prefWidth="785.0" />
+      <Pane fx:id="pane" layoutX="-3.0" layoutY="323.0" prefHeight="366.0" prefWidth="785.0" />
    </children>
 </AnchorPane>
