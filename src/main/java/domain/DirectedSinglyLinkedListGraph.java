@@ -7,6 +7,9 @@ import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DirectedSinglyLinkedListGraph implements Graph {
     private SinglyLinkedList vertexList; //lista enlazada de vértices
 
@@ -236,4 +239,47 @@ public class DirectedSinglyLinkedListGraph implements Graph {
 
         return result;
     }
+    public List<Object> getVertices() throws ListException {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 1; i <= vertexList.size(); i++) {
+            Vertex vertex = (Vertex) vertexList.getNode(i).getData();
+            if (vertex != null) {
+                vertices.add(vertex.data);
+            }
+        }
+        return vertices;
+    }
+
+    public static class EdgeInfo {
+        public Object source;
+        public Object destination;
+        public Integer weight;
+
+        public EdgeInfo(Object source, Object destination, Integer weight) {
+            this.source = source;
+            this.destination = destination;
+            this.weight = weight;
+        }
+    }
+
+
+    public List<EdgeInfo> getEdges() throws ListException {
+        List<EdgeInfo> edges = new ArrayList<>();
+        for (int i = 1; i <= vertexList.size(); i++) { // Iterar sobre cada vértice en la lista principal
+            Vertex sourceVertex = (Vertex) vertexList.getNode(i).getData();
+
+            if (sourceVertex != null && sourceVertex.edgesList != null && !sourceVertex.edgesList.isEmpty()) {
+                // Iterar sobre las aristas salientes de este vértice de origen
+                for (int j = 1; j <= sourceVertex.edgesList.size(); j++) {
+                    EdgeWeight ew = (EdgeWeight) sourceVertex.edgesList.getNode(j).getData();
+                    Object destinationVertexData = ew.getEdge();
+                    Integer weight = (Integer) ew.getWeight(); // Asegúrate de que getWeight devuelve Integer
+
+                    edges.add(new EdgeInfo(sourceVertex.data, destinationVertexData, weight));
+                }
+            }
+        }
+        return edges;
+    }
+
 }

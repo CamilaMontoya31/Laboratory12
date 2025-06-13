@@ -4,60 +4,59 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.control.ToggleGroup?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DirectedGraphContoller">
+<AnchorPane prefHeight="694.0" prefWidth="769.0" style="-fx-background-color: #d5dcdb;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.DirectedGraphContoller">
     <children>
-        <Pane prefHeight="53.0" prefWidth="600.0">
+        <Pane prefHeight="68.0" prefWidth="769.0" style="-fx-background-color: #e4eae9;">
             <children>
-                <Text layoutX="130.0" layoutY="41.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Directed Graph" fx:id="titleText">
+                <Text fx:id="titleText" layoutX="224.0" layoutY="53.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Directed Graph">
                     <font>
                         <Font name="Elephant" size="43.0" />
                     </font>
                 </Text>
             </children>
         </Pane>
-        <Pane layoutX="35.0" layoutY="53.0" prefHeight="82.0" prefWidth="530.0">
+        <Pane layoutX="39.0" layoutY="53.0" prefHeight="136.0" prefWidth="706.0">
             <children>
-                <Button fx:id="randomizeButton" layoutX="28.0" layoutY="14.0" mnemonicParsing="false" text="Randomize" />
-                <Button fx:id="containsVertexButton" layoutX="139.0" layoutY="14.0" mnemonicParsing="false" text="Contains Vertex" />
-                <Button fx:id="containsEdgeButton" layoutX="139.0" layoutY="44.0" mnemonicParsing="false" text="Contains Edge" />
-                <Button fx:id="toStringButton" layoutX="36.0" layoutY="44.0" mnemonicParsing="false" text="toString" />
-                <Button fx:id="bfsTourButton" layoutX="257.0" layoutY="14.0" mnemonicParsing="false" text="BFS Tour" />
-                <Button fx:id="dfsTourButton" layoutX="257.0" layoutY="44.0" mnemonicParsing="false" text="DFS Tour" /> <RadioButton fx:id="adjacencyMatrixRadioButton" layoutX="396.0" layoutY="14.0" mnemonicParsing="false" text="Adjacency Matrix">
+                <Button fx:id="randomizeButton" layoutX="35.0" layoutY="34.0" mnemonicParsing="false" style="-fx-background-color: #acdcd4;" text="Randomize" />
+                <Button fx:id="containsVertexButton" layoutX="206.0" layoutY="34.0" mnemonicParsing="false" style="-fx-background-color: #91e0d3;" text="Contains Vertex" />
+                <Button fx:id="containsEdgeButton" layoutX="210.0" layoutY="92.0" mnemonicParsing="false" style="-fx-background-color: #8dddb5;" text="Contains Edge" />
+                <Button fx:id="toStringButton" layoutX="44.0" layoutY="92.0" mnemonicParsing="false" style="-fx-background-color: #b0dec7;" text="toString" />
+                <Button fx:id="bfsTourButton" layoutX="403.0" layoutY="34.0" mnemonicParsing="false" style="-fx-background-color: #74e1cf;" text="BFS Tour" />
+                <Button fx:id="dfsTourButton" layoutX="402.0" layoutY="92.0" mnemonicParsing="false" style="-fx-background-color: #74e1aa;" text="DFS Tour" /> <RadioButton fx:id="adjacencyMatrixRadioButton" layoutX="529.0" layoutY="60.0" mnemonicParsing="false" text="Adjacency Matrix" textFill="#34836e">
                 <toggleGroup>
                     <ToggleGroup fx:id="graphTypeToggleGroup" />
                 </toggleGroup>
             </RadioButton>
-                <RadioButton fx:id="adjacencyListRadioButton" layoutX="396.0" layoutY="36.0" mnemonicParsing="false" text="Adjacency List" toggleGroup="$graphTypeToggleGroup" />
-                <RadioButton fx:id="linkedListRadioButton" layoutX="396.0" layoutY="61.0" mnemonicParsing="false" text="Linked List" toggleGroup="$graphTypeToggleGroup" />
-                <Text layoutX="413.0" layoutY="4.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Choose an option!" fx:id="chooseOptionText">
+                <RadioButton fx:id="adjacencyListRadioButton" layoutX="529.0" layoutY="87.0" mnemonicParsing="false" text="Adjacency List" textFill="#468367" toggleGroup="$graphTypeToggleGroup" />
+                <RadioButton fx:id="linkedListRadioButton" layoutX="529.0" layoutY="114.0" mnemonicParsing="false" text="Linked List" textFill="#609080" toggleGroup="$graphTypeToggleGroup" />
+                <Text fx:id="chooseOptionText" layoutX="544.0" layoutY="51.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Choose an option!">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Text>
             </children>
         </Pane>
-        <Text layoutX="192.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="163.13671875" fx:id="toStringContentText" />
-        <Text layoutX="195.0" layoutY="160.0" strokeType="OUTSIDE" strokeWidth="0.0" text="toString movements:" fx:id="toStringTitleText">
+        <Text fx:id="toStringContentText" layoutX="291.0" layoutY="232.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="163.13671875" />
+        <Text fx:id="toStringTitleText" layoutX="267.0" layoutY="213.0" strokeType="OUTSIDE" strokeWidth="0.0" text="toString movements:">
             <font>
                 <Font name="System Bold" size="16.0" />
             </font>
         </Text>
-        <Pane layoutX="9.0" layoutY="192.0" prefHeight="270.0" prefWidth="247.0">
+        <Pane layoutX="8.0" layoutY="255.0" prefHeight="428.0" prefWidth="365.0">
             <children>
-                <TextArea fx:id="outputTextArea" layoutX="14.0" layoutY="10.0" prefHeight="254.0" prefWidth="224.0" />
+                <TextArea fx:id="outputTextArea" layoutX="3.0" layoutY="-6.0" prefHeight="437.0" prefWidth="365.0" />
             </children>
         </Pane>
-        <Pane layoutX="293.0" layoutY="199.0" prefHeight="270.0" prefWidth="288.0">
-            <children>
-                <Canvas fx:id="graphCanvas" height="261.0" layoutX="18.0" layoutY="5.0" width="253.0" />
-            </children>
+        <Pane layoutX="383.0" layoutY="254.0" prefHeight="428.0" prefWidth="380.0">
+         <children>
+                <Canvas fx:id="graphCanvas" height="414.0" layoutY="8.0" width="380.0" />
+         </children>
         </Pane>
     </children>
 </AnchorPane>
