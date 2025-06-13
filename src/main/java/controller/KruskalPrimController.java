@@ -5,12 +5,14 @@ import domain.list.ListException;
 import domain.list.SinglyLinkedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 
 public class KruskalPrimController {
 
@@ -31,7 +33,6 @@ public class KruskalPrimController {
 
     @FXML
     private RadioButton rbPrim;
-
     private List<int[]> edgePairs = new ArrayList<>();
     private int currentEdgeIndex = 0;
 
@@ -43,74 +44,16 @@ public class KruskalPrimController {
     SinglyLinkedListGraph  graphLinked = new SinglyLinkedListGraph();
 
     @FXML
-    public void initialize(URL location, ResourceBundle resources) throws ListException{
+    private void initialize() {
+        ToggleGroup group1 = new ToggleGroup();
+        rbLinkedList.setToggleGroup(group1);
+        rbAdjacencyMatrix.setToggleGroup(group1);
+        rbAdjacencyList.setToggleGroup(group1);
 
-        Supplier<List<Object>> verticesM = () -> {
-            List<Object> verts = new ArrayList<>();
-            for (int i = 0; i < graphMatrix.counter; i++)
-                verts.add(graphMatrix.vertexList[i].data);
-            return verts;
-        };
-        Function<Object, List<EdgeWeight>> edgesM = v -> {
-            List<EdgeWeight> out = new ArrayList<>();
-            int i = Arrays.asList(graphMatrix.vertexList).indexOf(new Vertex(v));
-            for (int j = 0; j < graphMatrix.counter; j++) {
-                Object w = graphMatrix.adjacencyMatrix[i][j];
-                if (w != null && !w.equals(0))
-                    out.add(new EdgeWeight(graphMatrix.vertexList[j].data, w));
-            }
-            return out;
-        };
+        ToggleGroup group2 = new ToggleGroup();
+        rbPrim.setToggleGroup(group2);
+        rbKruskal.setToggleGroup(group2);
 
-        // 3) Lambdas para AdjacencyListGraph
-        Supplier<List<Object>> verticesL = () -> {
-            // asumo que tus vértices están en graphList.vertexList
-            return Collections.singletonList(new SinglyLinkedList());
-        };
-        Function<Object, List<EdgeWeight>> edgesL = v -> {
-            // asumo método que devuelve List<EdgeWeight>
-            try {
-                return graphList.getAdjList(v);
-            } catch (GraphException e) {
-                throw new RuntimeException(e);
-            } catch (ListException e) {
-                throw new RuntimeException(e);
-            }
-        };
-
-        // 4) Lambdas para SinglyLinkedListGraph
-        Supplier<List<Object>> verticesLi = () -> {
-            List<Object> verts = new ArrayList<>();
-
-                try {
-                    for (int k = 1; k <= graphLinked.vertexList.size(); k++) {
-                    verts.add(((Vertex)graphLinked.vertexList.getNode(k).data).data);
-                }} catch (ListException e) {
-                    throw new RuntimeException(e);
-                }
-
-            return verts;
-        };
-        Function<Object, List<EdgeWeight>> edgesLi = v -> {
-            List<EdgeWeight> out = new ArrayList<>();
-            try{
-            for (int k = 1; k <= graphLinked.vertexList.size(); k++) {
-                Vertex vert = (Vertex)graphLinked.vertexList.getNode(k).data;
-                if (vert.data.equals(v)) {
-                    for (int e = 1; e <= vert.edgesList.size(); e++)
-                        out.add((EdgeWeight)vert.edgesList.getNode(e).data);
-                    break;
-                }
-            }} catch (ListException e) {
-                throw new RuntimeException(e);
-            }
-            return out;
-        };
-
-        // 5. LLAMAR al dibujador para cada pane
-        util.FXUtility.drawGraph(graphMatrix, paneMatrix, verticesM, edgesM);
-        util.FXUtility.drawGraph(graphList,   paneList,   verticesL, edgesL);
-        util.FXUtility.drawGraph(graphLinked, paneLinked, verticesLi, edgesLi);
     }
 
 
@@ -154,7 +97,9 @@ public class KruskalPrimController {
 
         // colocar los numeros en los vertices del grafico opción 1, no es uno por una
         for (int i = 0; i < 10; i++) {
-            getGraph().addVertex(numeros[i]);
+            graphMatrix.addVertex(numeros[i]);
+            graphList.addVertex(numeros[i]);
+            graphLinked.addVertex(numeros[i]);
         }
         /*
         //agregar aristas opción 1, no es una por una
@@ -166,12 +111,40 @@ public class KruskalPrimController {
         //opción 2 generar pares aleatorios posibles (sin repetir ni simétricos)
         edgePairs.clear();
         currentEdgeIndex = 0;
+
+        // Generar todos los pares únicos de vértices
         for (int i = 0; i < 10; i++) {
             for (int j = i + 1; j < 10; j++) {
                 edgePairs.add(new int[]{numeros[i], numeros[j]});
             }
         }
+
         Collections.shuffle(edgePairs); // orden aleatorio
+
+        int maxEdges = 10; // cantidad aleatoria de aristas
+        for (int i = 0; i < maxEdges && i < edgePairs.size(); i++) {
+            int[] pair = edgePairs.get(i);
+            int from = pair[0];
+            int to = pair[1];
+            int weight = util.Utility.random(10, 100);
+
+            try {
+                // Agregamos ambas direcciones porque es no dirigido
+                graphMatrix.addEdgeWeight(from, to, weight);
+                graphMatrix.addEdgeWeight(to, from, weight);
+
+                graphList.addEdgeWeight(from, to, weight);
+                graphList.addEdgeWeight(to, from, weight);
+
+                graphLinked.addEdgeWeight(from, to, weight);
+                graphLinked.addEdgeWeight(to, from, weight);
+
+                System.out.println("Arista entre " + from + " y " + to + " con peso " + weight);
+            } catch (GraphException | ListException e) {
+                e.printStackTrace();
+            }
+        }
+
 
 
         //para dibujar el grafo
@@ -183,19 +156,31 @@ public class KruskalPrimController {
         };
         Function<Object, List<EdgeWeight>> edgesM = v -> {
             List<EdgeWeight> out = new ArrayList<>();
-            int i = Arrays.asList(graphMatrix.vertexList).indexOf(new Vertex(v));
+            int i = -1;
+            for (int k = 0; k < graphMatrix.counter; k++) {
+                if (graphMatrix.vertexList[k] != null && graphMatrix.vertexList[k].data.equals(v)) {
+                    i = k;
+                    break;
+                }
+            }
+            if (i == -1) return out; // no lo encontró
             for (int j = 0; j < graphMatrix.counter; j++) {
                 Object w = graphMatrix.adjacencyMatrix[i][j];
-                if (w != null && !w.equals(0))
+                if (w != null && !w.equals(0)) {
                     out.add(new EdgeWeight(graphMatrix.vertexList[j].data, w));
+                }
             }
             return out;
         };
 
-        // 3) Lambdas para AdjacencyListGraph
+        //Lambdas para AdjacencyListGraph
         Supplier<List<Object>> verticesL = () -> {
             // asumo que tus vértices están en graphList.vertexList
-            return Collections.singletonList(new SinglyLinkedList());
+            try {
+                return new ArrayList<>(graphList.getAllVertices());
+            } catch (ListException e) {
+                throw new RuntimeException(e);
+            }
         };
         Function<Object, List<EdgeWeight>> edgesL = v -> {
             try {
@@ -207,7 +192,7 @@ public class KruskalPrimController {
             }
         };
 
-        // 4) Lambdas para SinglyLinkedListGraph
+        // Lambdas para SinglyLinkedListGraph
         Supplier<List<Object>> verticesLi = () -> {
             List<Object> verts = new ArrayList<>();
 
@@ -235,10 +220,36 @@ public class KruskalPrimController {
             }
             return out;
         };
+        System.out.println("Dibujando aristas para: " + rbAdjacencyMatrix.isSelected());
+        System.out.println("Vertices: " + verticesM.get());
+        System.out.println("Aristas desde 0: " + edgesM.apply(verticesM.get().get(0)));
 
-        util.FXUtility.drawGraph(getGraph(), pane, verticesL, edgesL);
+        //generar los distintos grafos
+        if (rbAdjacencyMatrix.isSelected())
+            util.FXUtility.drawGraph(graphMatrix, pane, verticesM, edgesM);
+        if (rbAdjacencyList.isSelected())
+            util.FXUtility.drawGraph(graphList,   pane,   verticesL, edgesL);
+        if (rbLinkedList.isSelected()) {
+            util.FXUtility.drawGraph(graphLinked, pane, verticesLi, edgesLi);
+        }
+
+        //encontrar el arbol de expansión minima
+        if (rbKruskal.isSelected())
+            util.FXUtility.drawGraph(graphMatrix, pane, verticesM, edgesM);
+        if (rbPrim.isSelected())
+            util.FXUtility.drawGraph(graphList,   pane,   verticesL, edgesL);
+
     }
 
+    public void algorithms(){
+        List<EdgeWeight> allEdges = new ArrayList<>();
+        for (Integer u : getGraph().getAllVertices()) {
+            for (EdgeWeight ew : graphList.getAdjList(u)) {
+                allEdges.add(new EdgeWeight(u, (Integer)ew.getVertex(), (Integer)ew.getWeight()));
+            }
+        }
+
+    }
 
 
 }
