@@ -4,6 +4,8 @@ import domain.list.ListException;
 import domain.queue.QueueException;
 import domain.stack.StackException;
 
+import java.util.List;
+
 public interface Graph {
     // devuelve el número de vértices que tiene el grafo
     public int size() throws ListException;
