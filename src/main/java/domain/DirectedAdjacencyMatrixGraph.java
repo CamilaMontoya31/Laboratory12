@@ -6,6 +6,9 @@ import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DirectedAdjacencyMatrixGraph implements Graph {
     private Vertex[] vertexList; //arreglo de objetos tupo vértice
     private Object[][] adjacencyMatrix; //arreglo bidimensional
@@ -55,7 +58,7 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
 
     @Override
     public boolean containsVertex(Object element) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Directed Adjacency Matrix Graph is Empty");
         //opcion-1
        /* for (int i = 0; i < counter; i++) {
@@ -63,35 +66,35 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
                 return true;
         }*/
         //opcion-2
-        return indexOf(element)!=-1;
+        return indexOf(element) != -1;
         //return false;
     }
 
     @Override
     public boolean containsEdge(Object a, Object b) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Directed Directed Adjacency Matrix Graph Graph Graph is Empty");
-        return !(util.Utility.compare(adjacencyMatrix[indexOf(a)][indexOf(b)], 0)==0);
+        return !(util.Utility.compare(adjacencyMatrix[indexOf(a)][indexOf(b)], 0) == 0);
     }
 
     @Override
     public void addVertex(Object element) throws GraphException, ListException {
-        if(counter>=vertexList.length)
+        if (counter >= vertexList.length)
             throw new GraphException("Directed Directed Adjacency Matrix Graph Graph Graph is Full");
         vertexList[counter++] = new Vertex(element);
     }
 
     @Override
     public void addEdge(Object a, Object b) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
-            throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
+        if (!containsVertex(a) || !containsVertex(b))
+            throw new GraphException("Cannot add edge between vertexes [" + a + "] y [" + b + "]");
         adjacencyMatrix[indexOf(a)][indexOf(b)] = 1; //hay una arista
 
     }
 
-    private int indexOf(Object element){
+    private int indexOf(Object element) {
         for (int i = 0; i < counter; i++) {
-            if(util.Utility.compare(vertexList[i].data, element)==0)
+            if (util.Utility.compare(vertexList[i].data, element) == 0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
         }
         return -1; //significa q la data de todos los vertices no coinciden con element
@@ -99,103 +102,118 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
 
     @Override
     public void addWeight(Object a, Object b, Object weight) throws GraphException, ListException {
-        if(!containsEdge(a, b))
-            throw new GraphException("There is no edge between the vertexes["+a+"] y ["+b+"]");
+        if (!containsEdge(a, b))
+            throw new GraphException("There is no edge between the vertexes[" + a + "] y [" + b + "]");
         adjacencyMatrix[indexOf(a)][indexOf(b)] = weight; //hay una arista
 
     }
 
     @Override
     public void addEdgeWeight(Object a, Object b, Object weight) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
-            throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
+        if (!containsVertex(a) || !containsVertex(b))
+            throw new GraphException("Cannot add edge between vertexes [" + a + "] y [" + b + "]");
         adjacencyMatrix[indexOf(a)][indexOf(b)] = weight; //hay una arista
 
     }
 
     @Override
     public void removeVertex(Object element) throws GraphException, ListException {
-        if(isEmpty())
+        if (isEmpty())
             throw new GraphException("Directed Directed Adjacency Matrix Graph Graph Graph is Empty");
         int index = indexOf(element);
-        if(index!=-1){ //si existe el indice
-            for (int i = index; i < counter-1; i++) {
-                vertexList[i] = vertexList[i+1];
+        if (index != -1) { //si existe el indice
+            for (int i = index; i < counter - 1; i++) {
+                vertexList[i] = vertexList[i + 1];
                 //elimino el vertice, tambien debo eliminar todas las aristas
 
                 //movemos todas las filas, una posición hacia arriba
                 for (int j = 0; j < counter; j++)
-                    adjacencyMatrix[i][j] = adjacencyMatrix[i+1][j];
+                    adjacencyMatrix[i][j] = adjacencyMatrix[i + 1][j];
             }
             //ahora, movemos todas las columnas, una posición a la izq
             for (int i = 0; i < counter; i++) {
-                for (int j = index; j < counter-1; j++) {
-                    adjacencyMatrix[i][j] = adjacencyMatrix[i][j+1];
+                for (int j = index; j < counter - 1; j++) {
+                    adjacencyMatrix[i][j] = adjacencyMatrix[i][j + 1];
                 }
             }
             counter--; //decrementamos el contador de vertices agregados
         }
         //que pasa, si ya no quedan vertices
-        if(counter==0) initMatrix();
+        if (counter == 0) initMatrix();
     }
 
     @Override
     public void removeEdge(Object a, Object b) throws GraphException, ListException {
-        if(!containsVertex(a)||!containsVertex(b))
+        if (!containsVertex(a) || !containsVertex(b))
             throw new GraphException("There's no some of the vertexes");
         int i = indexOf(a);
         int j = indexOf(b);
-        if(i!=-1 && j!=-1){
+        if (i != -1 && j != -1) {
             adjacencyMatrix[i][j] = 0;
         }
     }
 
-    // Recorrido en profundidad
+    // Recorrido en profundidad (DFS)
     @Override
     public String dfs() throws GraphException, StackException, ListException {
-        setVisited(false);//marca todos los vertices como no vistados
+        if (isEmpty()) throw new GraphException("DFS: Graph is Empty");
+        setVisited(false); // marca todos los vertices como no visitados
         // inicia en el vertice 0
-        String info = vertexList[0].data + ", ";
-        vertexList[0].setVisited(true); // lo marca
-        stack.clear();
-        stack.push(0); //lo apila
-        while (!stack.isEmpty()) {
-            // obtiene un vertice adyacente no visitado,
-            //el que esta en el tope de la pila
-            int index = adjacentVertexNotVisited((int) stack.top());
-            if (index == -1) // no lo encontro
-                stack.pop();
-            else {
-                vertexList[index].setVisited(true); // lo marca
-                info += vertexList[index].data + ", "; //lo muestra
-                stack.push(index); //inserta la posicion
+        String info = "";
+        try {
+            info += vertexList[0].data + ", ";
+            vertexList[0].setVisited(true); // lo marca
+            stack.clear();
+            stack.push(0); // lo apila
+            while (!stack.isEmpty()) {
+                // obtiene un vertice adyacente no visitado,
+                // el que esta en el tope de la pila
+                int index = adjacentVertexNotVisited((int) stack.top());
+                if (index == -1) // no lo encontro
+                    stack.pop();
+                else {
+                    vertexList[index].setVisited(true); // lo marca
+                    info += vertexList[index].data + ", "; // lo muestra
+                    stack.push(index); // inserta la posicion
+                }
             }
+        } catch (StackException e) {
+            // Manejar las excepciones si es necesario
+            throw new GraphException("DFS traversal error: " + e.getMessage());
         }
         return info;
     }
 
-    //Recorrido en amplitud
+    // Recorrido en amplitud (BFS)
     @Override
     public String bfs() throws GraphException, QueueException, ListException {
-        setVisited(false);//marca todos los vertices como no visitados
+        if (isEmpty()) throw new GraphException("BFS: Graph is Empty");
+        setVisited(false); // marca todos los vertices como no visitados
         // inicia en el vertice 0
-        String info = vertexList[0].data + ", ";
-        vertexList[0].setVisited(true); // lo marca
-        queue.clear();
-        queue.enQueue(0); // encola el elemento
-        int v2;
-        while (!queue.isEmpty()) {
-            int v1 = (int) queue.deQueue(); // remueve el vertice de la cola
-            // hasta que no tenga vecinos sin visitar
-            while ((v2 = adjacentVertexNotVisited(v1)) != -1) {
-                // obtiene uno
-                vertexList[v2].setVisited(true); // lo marca
-                info += vertexList[v2].data + ", "; //lo muestra
-                queue.enQueue(v2); // lo encola
+        String info = "";
+        try {
+            info += vertexList[0].data + ", ";
+            vertexList[0].setVisited(true); // lo marca
+            queue.clear();
+            queue.enQueue(0); // encola el elemento
+            int v2;
+            while (!queue.isEmpty()) {
+                int v1 = (int) queue.deQueue(); // remueve el vertice de la cola
+                // hasta que no tenga vecinos sin visitar
+                while ((v2 = adjacentVertexNotVisited(v1)) != -1) {
+                    // obtiene uno
+                    vertexList[v2].setVisited(true); // lo marca
+                    info += vertexList[v2].data + ", "; // lo muestra
+                    queue.enQueue(v2); // lo encola
+                }
             }
+        } catch (QueueException e) {
+            // Manejar las excepciones si es necesario
+            throw new GraphException("BFS traversal error: " + e.getMessage());
         }
         return info;
     }
+
 
     //setteamos el atributo visitado del vertice respectivo
     private void setVisited(boolean value) {
@@ -237,5 +255,31 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
         }
 
         return result;
+    }
+    public List<Object> getVertices() {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 0; i < counter; i++) {
+            vertices.add(vertexList[i].data);
+        }
+        return vertices;
+    }
+    public int getWeight(Object source, Object destination) throws GraphException, ListException {
+        if (!containsVertex(source)) {
+            throw new GraphException("Source vertex [" + source + "] does not exist.");
+        }
+        if (!containsVertex(destination)) {
+            throw new GraphException("Destination vertex [" + destination + "] does not exist.");
+        }
+
+        int sourceIndex = indexOf(source);
+        int destIndex = indexOf(destination);
+
+        // Asegúrate de que el valor en adjacencyMatrix[sourceIndex][destIndex] sea un Integer.
+        if (adjacencyMatrix[sourceIndex][destIndex] instanceof Integer) {
+            return (int) adjacencyMatrix[sourceIndex][destIndex];
+        }
+        // Si no es Integer (lo cual no debería pasar si siempre usas Integer para pesos y 0 para no arista),
+        // o si es un tipo inesperado, asumimos que no hay arista para el dibujo.
+        return 0;
     }
 }

@@ -7,6 +7,9 @@ import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DirectedAdjacencyListGraph implements Graph {
     private Vertex[] vertexList; //arreglo de objetos tupo vértice
     private int n; //max de elementos
@@ -235,4 +238,49 @@ public class DirectedAdjacencyListGraph implements Graph {
         }
         return result;
     }
+    public List<Object> getVertices() {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 0; i < counter; i++) {
+            if (vertexList[i] != null) {
+                vertices.add(vertexList[i].data);
+            }
+        }
+        return vertices;
+    }
+
+
+    public static class EdgeInfo {
+        public Object source;
+        public Object destination;
+        public Integer weight;
+
+        public EdgeInfo(Object source, Object destination, Integer weight) {
+            this.source = source;
+            this.destination = destination;
+            this.weight = weight;
+        }
+    }
+
+
+    public List<EdgeInfo> getEdges() throws ListException {
+        List<EdgeInfo> edges = new ArrayList<>();
+        for (int i = 0; i < counter; i++) {
+            if (vertexList[i] != null) {
+                Object sourceVertexData = vertexList[i].data;
+                SinglyLinkedList currentVertexEdges = vertexList[i].edgesList;
+
+                if (currentVertexEdges != null && !currentVertexEdges.isEmpty()) {
+                    for (int j = 0; j < currentVertexEdges.size(); j++) {
+                        EdgeWeight ew = (EdgeWeight) currentVertexEdges.get(j);
+                        Object destinationVertexData = ew.getEdge();
+                        Integer weight = (Integer) ew.getWeight();
+
+                        edges.add(new EdgeInfo(sourceVertexData, destinationVertexData, weight));
+                    }
+                }
+            }
+        }
+        return edges;
+    }
 }
+

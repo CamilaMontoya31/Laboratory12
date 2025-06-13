@@ -28,6 +28,8 @@ public class AdjacencyMatrixGraph implements Graph {
         initMatrix(); //inicializa matriz de objetos con cero
     }
 
+
+
     private void initMatrix() {
 
         for (int i = 0; i < n; i++)
