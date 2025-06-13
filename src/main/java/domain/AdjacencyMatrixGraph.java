@@ -6,6 +6,9 @@ import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AdjacencyMatrixGraph implements Graph {
     public Vertex[] vertexList; //arreglo de objetos tupo vértice
     public Object[][] adjacencyMatrix; //arreglo bidimensional
@@ -244,5 +247,24 @@ public class AdjacencyMatrixGraph implements Graph {
         }
 
         return result;
+    }
+    @Override
+    public List<Integer> getNeighbors(int vertexIndex) {
+        List<Integer> neighbors = new ArrayList<>();
+        for (int j = 0; j < counter; j++) {
+            if (adjacencyMatrix[vertexIndex][j] != null) {
+                neighbors.add(j);
+            }
+        }
+        return neighbors;
+    }
+
+    @Override
+    public int getWeight(int fromIndex, int toIndex) {
+        Object value = adjacencyMatrix[fromIndex][toIndex];
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        return Integer.MAX_VALUE; // o lanzar excepción si prefieres
     }
 }

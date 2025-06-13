@@ -35,4 +35,7 @@ public interface Graph {
     //recorre el grafo utilizando el algoritmo de búsqueda en amplitud
     //breadth-first search
     public String bfs()throws GraphException, QueueException, ListException;
+    //para recorridos de arbol expansión minima
+    List<Integer> getNeighbors(int vertex) throws ListException; // Vecinos directos
+    int getWeight(int from, int to) throws GraphException, ListException; // Peso entre vértices
 }

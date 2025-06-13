@@ -160,6 +160,12 @@ public class SinglyLinkedList implements List{
         }
         return first.data;
     }
+    public Node getFirstNode() throws ListException {
+        if(isEmpty()){
+            throw new ListException("Singly Linked List is Empty");
+        }
+        return first;
+    }
 
     @Override
     public Object getLast() throws ListException {

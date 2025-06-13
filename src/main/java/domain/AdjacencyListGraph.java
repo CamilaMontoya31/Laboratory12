@@ -1,6 +1,7 @@
 package domain;
 
 import domain.list.ListException;
+import domain.list.Node;
 import domain.list.SinglyLinkedList;
 import domain.queue.LinkedQueue;
 import domain.queue.QueueException;
@@ -279,4 +280,38 @@ public class AdjacencyListGraph implements Graph {
         }
         return edges;
     }
+    @Override
+    public List<Integer> getNeighbors(int vertexIndex) throws ListException {
+        int i = 1;//contador
+        List<Integer> neighbors = new ArrayList<>();
+        Vertex v = vertexList[vertexIndex];
+        if (v != null && v.edgesList != null) {
+            Node aux = v.edgesList.getFirstNode();
+            while (aux != null) {
+                EdgeWeight edge = (EdgeWeight) aux.data;
+                neighbors.add(i);
+                aux = aux.next;
+                i++;
+            }
+        }
+        return neighbors;
+    }
+
+
+    @Override
+    public int getWeight(int fromIndex, int toIndex) throws ListException {
+        Vertex v = vertexList[fromIndex];
+        if (v != null && v.edgesList != null) {
+            Node aux = v.edgesList.getFirstNode();
+            while (aux != null) {
+                EdgeWeight edge = (EdgeWeight) aux.data;
+                if (edge.destino.equals(toIndex)) {
+                    return (int) edge.weight;
+                }
+            }
+        }
+        return Integer.MAX_VALUE;
+    }
+
+
 }

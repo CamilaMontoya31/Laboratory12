@@ -114,150 +114,146 @@ public class Utility {
         return names[random(names.length-1)];
     }
 
-    public enum Algorithm { KRUSKAL, PRIM }
+    //Algoritmo de Kruskal
+    // Clase para el Union-Find (Disjoint Set)
+    static class UnionFind {
+        int[] padre;
 
-    public static Graph computeMST(Graph graph, Algorithm algo)
-            throws GraphException, ListException {
+        UnionFind(int n) {
+            padre = new int[n];
+            for (int i = 0; i < n; i++) {
+                padre[i] = i;
+            }
+        }
 
-        if (graph instanceof AdjacencyListGraph) {
-            return computeMSTList((AdjacencyListGraph) graph, algo);
-        } else if (graph instanceof AdjacencyMatrixGraph) {
-            return computeMSTList(((AdjacencyMatrixGraph) graph).toAdjacencyListGraph(), algo);
-        } else if (graph instanceof SinglyLinkedListGraph) {
-            return computeMSTList(((SinglyLinkedListGraph) graph).toAdjacencyListGraph(), algo);
-        } else {
-            throw new IllegalArgumentException("Tipo de grafo no soportado: " + graph.getClass());
+        int encontrar(int x) {
+            if (padre[x] != x) {
+                padre[x] = encontrar(padre[x]); // path compression
+            }
+            return padre[x];
+        }
+
+        boolean unir(int x, int y) {
+            int raizX = encontrar(x);
+            int raizY = encontrar(y);
+            if (raizX == raizY) return false; // ya están en el mismo conjunto
+            padre[raizX] = raizY;
+            return true;
+        }
+        boolean unir(Object x, Object y) {
+            Object raizX = encontrar((Integer) x);
+            Object raizY = encontrar((Integer) y);
+            if (raizX == raizY) return false; // ya están en el mismo conjunto
+            padre[(int) raizX] = (int) raizY;
+            return true;
         }
     }
 
-    private static Graph computeMSTList(AdjacencyListGraph graph, Algorithm algo)
-            throws GraphException, ListException {
-        switch (algo) {
-            case KRUSKAL:
-                return kruskalMST(graph);
-            case PRIM:
-                return primMST(graph);
-            default:
-                throw new IllegalArgumentException("Algoritmo no soportado: " + algo);
+    // Algoritmo de Kruskal
+    // Clase para representar una arista (edge)
+    public static class Edge implements Comparable<Edge> {
+        public Object origen;
+        public Object destino;
+        public Object peso;
+
+        public Edge(int origen, int destino, int peso) {
+            this.origen = origen;
+            this.destino = destino;
+            this.peso = peso;
+        }
+        public Object getFrom() {
+            return origen;
+        }
+
+        public Object getTo() {
+            return destino;
+        }
+
+        public Object getWeight() {
+            return peso;
+        }
+        @Override
+        public int compareTo(Edge otra) {
+            return Integer.compare((Integer) this.peso, (Integer)otra.peso); // ordenar por peso ascendente
+        }
+
+        @Override
+        public String toString() {
+            return "Edge{" +
+                    "origen=" + origen +
+                    ", destino=" + destino +
+                    ", peso=" + peso +
+                    '}';
         }
     }
 
-    private static AdjacencyListGraph kruskalMST(AdjacencyListGraph graph)
-            throws GraphException, ListException {
-        List<Integer> vertices = graph.getAllVertices();
-        List<EdgeTriple> edges = new ArrayList<>();
+    public static List<Edge> kruskal(List<Edge> aristas, int n) {
+        List<Edge> resultado = new ArrayList<>(); // E(1) = aristas del MST
+        Collections.sort(aristas); // ordenar por peso ascendente
+        UnionFind uf = new UnionFind(10); // n = número de vértices
 
-        for (Integer u : vertices) {
-            for (EdgeWeight ew : graph.getAdjList(u)) {
-                int v = (Integer) ew.getVertex();
-                int w = (Integer) ew.getWeight();
-                if (u < v) {
-                    edges.add(new EdgeTriple(u, v, w));
+        for (Edge e : aristas) {
+            if (resultado.size() == n - 1) break; // ya tenemos n-1 aristas
+            if (uf.unir(e.origen, e.destino)) {
+                resultado.add(e);
+            }
+        }
+
+        return resultado;
+    }
+    //Prim
+    public static List<Edge> prim(Graph graph) throws ListException, GraphException {
+        List<Edge> resultado = new ArrayList<>(); // = aristas del MST
+        int V = graph.size();
+        int[] key = new int[V];
+        int[] parent = new int[V];
+        boolean[] inMST = new boolean[V];
+
+        Arrays.fill(key, Integer.MAX_VALUE);
+        key[0] = 0;
+        parent[0] = -1;
+
+        for (int count = 0; count < V - 1; count++) {
+            int u = minKey(key, inMST);
+            inMST[u] = true;
+
+            for (int v : graph.getNeighbors(u)) {
+                int weight = graph.getWeight(u, v);
+                if (!inMST[v] && weight < key[v]) {
+                    key[v] = weight;
+                    parent[v] = u;
+                }
+                for (int i = 1; i < v ; i++) {
+                    resultado.add(new Edge(parent[1],i,graph.getWeight(parent[i],i)));
                 }
             }
         }
-        Collections.sort(edges);
 
-        UnionFind uf = new UnionFind();
-        uf.makeSet(vertices);
+        printMST(parent, key);
 
-        AdjacencyListGraph mst = new AdjacencyListGraph();
-        for (Integer v : vertices) mst.addVertex(v);
+        return resultado;
+    }
 
-        int needed = vertices.size() - 1;
-        for (EdgeTriple e : edges) {
-            if (uf.union(e.from, e.to)) {
-                mst.addEdgeWeight(e.from, e.to, e.weight);
-                mst.addEdgeWeight(e.to, e.from, e.weight);
-                if (--needed == 0) break;
+    private static int minKey(int[] key, boolean[] mstSet) {
+        int min = Integer.MAX_VALUE, minIndex = -1;
+
+        for (int v = 0; v < key.length; v++) {
+            if (!mstSet[v] && key[v] < min) {
+                min = key[v];
+                minIndex = v;
             }
         }
-        return mst;
+
+        return minIndex;
     }
 
-    private static AdjacencyListGraph primMST(AdjacencyListGraph graph)
-            throws GraphException, ListException {
-        List<Integer> vertices = graph.getAllVertices();
-        if (vertices.isEmpty()) return new AdjacencyListGraph();
-
-        AdjacencyListGraph mst = new AdjacencyListGraph();
-        Set<Integer> visited = new HashSet<>();
-        int start = vertices.get(0);
-        mst.addVertex(start);
-        visited.add(start);
-
-        PriorityQueue<EdgeTriple> pq = new PriorityQueue<>();
-        addEdgesOf(graph, start, visited, pq);
-
-        while (!pq.isEmpty() && visited.size() < vertices.size()) {
-            EdgeTriple minEdge = pq.poll();
-            if (visited.contains(minEdge.to)) continue;
-
-            visited.add(minEdge.to);
-            mst.addVertex(minEdge.to);
-            mst.addEdgeWeight(minEdge.from, minEdge.to, minEdge.weight);
-            mst.addEdgeWeight(minEdge.to, minEdge.from, minEdge.weight);
-
-            addEdgesOf(graph, minEdge.to, visited, pq);
-        }
-        return mst;
-    }
-
-    private static void addEdgesOf(AdjacencyListGraph graph, int u,
-                                   Set<Integer> visited, PriorityQueue<EdgeTriple> pq)
-            throws GraphException, ListException {
-        for (EdgeWeight ew : graph.getAdjList(u)) {
-            int v = (Integer) ew.getVertex();
-            int w = (Integer) ew.getWeight();
-            if (!visited.contains(v)) {
-                pq.offer(new EdgeTriple(u, v, w));
-            }
-        }
-    }
-}
-
-class UnionFind {
-    private final Map<Integer, Integer> parent = new HashMap<>();
-    private final Map<Integer, Integer> rank   = new HashMap<>();
-
-    public void makeSet(Collection<Integer> vertices) {
-        for (Integer v : vertices) {
-            parent.put(v, v);
-            rank.put(v, 0);
+    private static void printMST(int[] parent, int[] key) {
+        System.out.println("Edge \tWeight");
+        for (int i = 1; i < parent.length; i++) {
+            System.out.println(parent[i] + " - " + i + "\t" + key[i]);
         }
     }
 
-    public int find(int x) {
-        if (parent.get(x) != x) {
-            parent.put(x, find(parent.get(x)));
-        }
-        return parent.get(x);
-    }
 
-    public boolean union(int a, int b) {
-        int ra = find(a), rb = find(b);
-        if (ra == rb) return false;
-        if (rank.get(ra) < rank.get(rb)) {
-            parent.put(ra, rb);
-        } else if (rank.get(ra) > rank.get(rb)) {
-            parent.put(rb, ra);
-        } else {
-            parent.put(rb, ra);
-            rank.put(ra, rank.get(ra) + 1);
-        }
-        return true;
-    }
-}
 
-class EdgeTriple implements Comparable<EdgeTriple> {
-    public final int from, to, weight;
-    public EdgeTriple(int f, int t, int w) {
-        this.from = f;
-        this.to = t;
-        this.weight = w;
-    }
-    @Override
-    public int compareTo(EdgeTriple o) {
-        return Integer.compare(this.weight, o.weight);
-    }
 }

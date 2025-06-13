@@ -1,6 +1,7 @@
 package util;
 
 import domain.EdgeWeight;
+import domain.Graph;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -8,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import ucr.lab.HelloApplication;
 
@@ -73,80 +75,84 @@ public class FXUtility {
         else return "NO";
     }
 
-    /**
-     * Dibuja en el pane un grafo cualquiera, siempre y cuando:
-     *  - sepas cómo sacarle la lista de vértices (verticesSupplier)
-     *  - sepas cómo sacarle las aristas de cada vértice (edgesSupplier)
-     *
-     * @param graph             tu objeto grafo (puede ser cualquier clase)
-     * @param pane              el Pane de JavaFX donde se dibuja
-     * @param verticesSupplier  lambda que devuelve List<V> de todos los vértices
-     * @param edgesSupplier     lambda que para cada V devuelve List<EdgeWeight>
-     * @param <G>               tipo de tu clase de grafo
-     * @param <V>               tipo de los vértices (ej. String, Integer, tu clase Vertex, etc.)
-     */
-    public static <G, V> void drawGraph(
-            G graph,
-            Pane pane,
-            Supplier<List<V>> verticesSupplier,
-            Function<V, List<EdgeWeight>> edgesSupplier
-    ) {
+    //Dibuja en el pane un grafo//
+    public static void drawGraph(Graph graph, Pane pane,
+                                 Supplier<List<Object>> vertices,
+                                 Function<Object, List<EdgeWeight>> edges,
+                                 List<Utility.Edge> mstEdges) {
         pane.getChildren().clear();
 
-        // 1) obtenemos la lista de vértices
-        List<V> vertices = verticesSupplier.get();
-        int n = vertices.size();
-
-        // parámetros de posicionamiento
-        double radius = 100;
-        double centerX = pane.getWidth()  / 2;
+        List<Object> vertexList = vertices.get();
+        int radius = 100;
+        double centerX = pane.getWidth() / 2;
         double centerY = pane.getHeight() / 2;
+        int n = vertexList.size();
 
-        // 2) calculamos y guardamos posiciones
-        Map<V, Point2D> pos = new HashMap<>();
+        Map<Object, Circle> vertexCircles = new HashMap<>();
+        Map<Object, Point2D> vertexPositions = new HashMap<>();
+
+        // Calcular posiciones circulares
         for (int i = 0; i < n; i++) {
             double angle = 2 * Math.PI * i / n;
             double x = centerX + radius * Math.cos(angle);
             double y = centerY + radius * Math.sin(angle);
-            V v = vertices.get(i);
-             pos.put(v, new Point2D(x, y));
 
-            // 3) dibujamos el nodo
-            Circle c = new Circle(x, y, 20);
-            c.setFill(Color.LIGHTBLUE);
-            c.setStroke(Color.BLACK);
-            Text txt = new Text(x - 5, y + 5, v.toString());
+            Object v = vertexList.get(i);
+            vertexPositions.put(v, new Point2D(x, y));
 
-            pane.getChildren().addAll(c, txt);
+            Circle circle = new Circle(x, y, 18);
+            circle.setFill(Color.LIGHTBLUE);
+            circle.setStroke(Color.DARKBLUE);
+
+            Text label = new Text(x - 10, y + 5, v.toString());
+
+            vertexCircles.put(v, circle);
+            pane.getChildren().addAll(circle, label);
         }
 
-        // 4) dibujamos aristas sin duplicar (no dirigido)
-        Set<String> seen = new HashSet<>();
-        for (V from : vertices) {
-            Point2D p1 = pos.get(from);
-            for (EdgeWeight ew : edgesSupplier.apply(from)) {
-                V to = (V) ew.getEdge();
-                String key = from.toString() + "→" + to.toString();
-                String rev = to.toString() + "→" + from.toString();
-                if (seen.contains(key) || seen.contains(rev)) continue;
-                seen.add(key);
+        // Dibujar aristas
+        Set<String> drawnEdges = new HashSet<>();
 
-                Point2D p2 = pos.get(to);
-                Line line = new Line(p1.getX(), p1.getY(), p2.getX(), p2.getY());
-                line.setStroke(Color.GRAY);
-                pane.getChildren().add(line);
+        for (Object from : vertexList) {
+            Point2D fromPos = vertexPositions.get(from);
+            for (EdgeWeight edge : edges.apply(from)) {
+                Object to = edge.getTo();
+                Point2D toPos = vertexPositions.get(to);
 
-                // si hay peso, lo ponemos al medio
-                if (ew.getWeight() != null) {
-                    double mx = (p1.getX() + p2.getX()) / 2;
-                    double my = (p1.getY() + p2.getY()) / 2;
-                    Text w = new Text(mx, my, ew.getWeight().toString());
-                    w.setFill(Color.RED);
-                    pane.getChildren().add(w);
+                // Evitar duplicados (no dirigidos)
+                String edgeId = from.toString() + "-" + to.toString();
+                String reverseId = to.toString() + "-" + from.toString();
+                if (drawnEdges.contains(edgeId) || drawnEdges.contains(reverseId)) continue;
+                drawnEdges.add(edgeId);
+
+                // Verificar si es parte del MST
+                boolean isInMST = false;
+                if (mstEdges != null) {
+                    for (Utility.Edge mstEdge : mstEdges) {
+                        if ((mstEdge.origen.equals(from) && mstEdge.destino.equals(to)) ||
+                                (mstEdge.origen.equals(to) && mstEdge.destino.equals(from))) {
+                            isInMST = true;
+                            break;
+                        }
+                    }
                 }
+
+                Line line = new Line(fromPos.getX(), fromPos.getY(), toPos.getX(), toPos.getY());
+                line.setStroke(isInMST ? Color.RED : Color.GRAY);
+                line.setStrokeWidth(isInMST ? 3.5 : 1.5);
+
+                // Mostrar peso
+                double midX = (fromPos.getX() + toPos.getX()) / 2;
+                double midY = (fromPos.getY() + toPos.getY()) / 2;
+                Text weightLabel = new Text(midX, midY, edge.getWeight().toString());
+                weightLabel.setFill(Color.BLACK);
+                weightLabel.setFont(Font.font(12));
+
+                pane.getChildren().addAll(line, weightLabel);
             }
         }
     }
+
 
 }//END CLASS
 

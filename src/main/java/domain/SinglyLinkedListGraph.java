@@ -1,11 +1,16 @@
 package domain;
 
 import domain.list.ListException;
+import domain.list.Node;
 import domain.list.SinglyLinkedList;
 import domain.queue.LinkedQueue;
 import domain.queue.QueueException;
 import domain.stack.LinkedStack;
 import domain.stack.StackException;
+import util.Utility;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SinglyLinkedListGraph implements Graph {
     public SinglyLinkedList vertexList; //lista enlazada de vértices
@@ -244,5 +249,35 @@ public class SinglyLinkedListGraph implements Graph {
 
         return result;
     }
+//para recorridos de arbol de expansión minima
+@Override
+public List<Integer> getNeighbors(int vertexIndex) throws ListException {
+    List<Integer> neighbors = new ArrayList<>();
+    Vertex v = (Vertex) vertexList.get(vertexIndex);
+    if (v != null && v.edgesList != null) {
+        Node aux = (Node) v.edgesList.getFirstNode();
+        while (aux != null) {
+            Utility.Edge edge = (Utility.Edge) aux.data;
+            neighbors.add((Integer) edge.destino);
+            aux = aux.next;
+        }
+    }
+    return neighbors;
+}
 
+    @Override
+    public int getWeight(int fromIndex, int toIndex) throws ListException {
+        Vertex v = (Vertex) vertexList.get(fromIndex);
+        if (v != null && v.edgesList != null) {
+            Node aux = (Node) v.edgesList.getFirstNode();
+            while (aux != null) {
+                Utility.Edge edge = (Utility.Edge) aux.data;
+                if (edge.destino.equals(toIndex)) {
+                    return (int) edge.peso;
+                }
+                aux = aux.next;
+            }
+        }
+        return Integer.MAX_VALUE;
+    }
 }

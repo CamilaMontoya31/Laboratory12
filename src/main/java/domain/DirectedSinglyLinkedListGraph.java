@@ -201,6 +201,16 @@ public class DirectedSinglyLinkedListGraph implements Graph {
         return info;
     }
 
+    @Override
+    public List<Integer> getNeighbors(int vertex) throws ListException {
+        return List.of();
+    }
+
+    @Override
+    public int getWeight(int from, int to) throws GraphException, ListException {
+        return 0;
+    }
+
     //setteamos el atributo visitado del vertice respectivo
     private void setVisited(boolean value) throws ListException {
         for (int i=1; i<=vertexList.size(); i++) {
