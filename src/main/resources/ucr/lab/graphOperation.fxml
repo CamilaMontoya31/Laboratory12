@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="690.0" prefWidth="785.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.OperationController">
+   <Pane prefHeight="71.0" prefWidth="788.0" style="-fx-background-color: #c4f5f4;">
+      <Label layoutX="146.0" layoutY="13.0" text="Directed Graph Operations">
+         <font>
+            <Font name="Elephant" size="36.0" />
+         </font>
+      </Label>
+   </Pane>
+   <Pane layoutY="81.0" prefHeight="129.0" prefWidth="788.0">
+      <Button layoutX="190.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleRemoveVertex" prefHeight="45.0" prefWidth="161.0" style="-fx-background-color: #f7a3a3;" text="Remove Vertex">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="371.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleAddEdge" prefHeight="45.0" prefWidth="257.0" style="-fx-background-color: #f4f79a;" text="Add Edge &amp; Weight">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="9.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleRandomize" prefHeight="45.0" prefWidth="161.0" style="-fx-background-color: #d8c4f5;" text="Randomize">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="190.0" layoutY="14.0" mnemonicParsing="false" onAction="#handleAddVertex" prefHeight="45.0" prefWidth="161.0" style="-fx-background-color: #c4f5cd;" text="Add Vertex">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="371.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleRemoveEdge" prefHeight="45.0" prefWidth="257.0" style="-fx-background-color: #f5bcd5;" text="Remove Edge &amp; Weight">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <Button layoutX="9.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleClear" prefHeight="45.0" prefWidth="161.0" style="-fx-background-color: #c0cdd1;" text="Clear">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Button>
+      <RadioButton fx:id="btList" layoutX="648.0" layoutY="19.0" mnemonicParsing="false" onAction="#listOnAction" text="Adjacency List">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <toggleGroup>
+            <ToggleGroup fx:id="group" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="btMatrix" layoutX="648.0" layoutY="54.0" mnemonicParsing="false" onAction="#matrixOnAction" text="Adjacency Matrix" toggleGroup="$group">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="btLinked" layoutX="648.0" layoutY="89.0" mnemonicParsing="false" onAction="#linkedOnAction" text="Linked List" toggleGroup="$group">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </RadioButton>
+   </Pane>
+   <TextArea fx:id="textArea" layoutX="8.0" layoutY="267.0" prefHeight="415.0" prefWidth="375.0" />
+   <Label fx:id="label" layoutX="14.0" layoutY="223.0" prefHeight="44.0" prefWidth="746.0" text="Info of the graph">
+      <font>
+         <Font name="Elephant" size="20.0" />
+      </font>
+   </Label>
+   <Pane fx:id="pane" layoutX="394.0" layoutY="267.0" prefHeight="415.0" prefWidth="383.0">
+      <Canvas fx:id="canvas" height="415.0" layoutX="4.0" width="375.0" />
+   </Pane>
+</AnchorPane>

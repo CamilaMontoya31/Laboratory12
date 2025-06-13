@@ -207,6 +207,15 @@ public class AdjacencyMatrixGraph implements Graph {
         return info;
     }
 
+    @Override
+    public List<Object> getVertices() throws GraphException, ListException {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 0; i < counter; i++) {
+            vertices.add(vertexList[i].data);
+        }
+        return vertices;
+    }
+
     //setteamos el atributo visitado del vertice respectivo
     private void setVisited(boolean value) {
         for (int i = 0; i < counter; i++) {
@@ -266,5 +275,20 @@ public class AdjacencyMatrixGraph implements Graph {
             return (Integer) value;
         }
         return Integer.MAX_VALUE; // o lanzar excepción si prefieres
+    }
+
+    @Override
+    public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
+        // Buscar el índice del vértice
+        int idx = indexOf(v);
+        if (idx == -1)
+            throw new GraphException("Vértice no encontrado: " + v);
+        List<EdgeWeight> edges = new ArrayList<>();
+        // Acceder a su lista enlazada de aristas
+        for (int j = 1; j <= counter; j++) {
+            if (util.Utility.compare(adjacencyMatrix[idx][j], 0)!=0)
+                edges.add(new EdgeWeight(vertexList[j].data, adjacencyMatrix[idx][j]));
+        }
+        return edges;
     }
 }

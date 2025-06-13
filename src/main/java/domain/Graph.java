@@ -38,4 +38,7 @@ public interface Graph {
     //para recorridos de arbol expansión minima
     List<Integer> getNeighbors(int vertex) throws ListException; // Vecinos directos
     int getWeight(int from, int to) throws GraphException, ListException; // Peso entre vértices
+    String bfs()throws GraphException, QueueException, ListException;
+    List<Object> getVertices() throws GraphException, ListException;
+    List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException;
 }

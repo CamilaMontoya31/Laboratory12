@@ -266,6 +266,8 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
 
         return result;
     }
+
+    @Override
     public List<Object> getVertices() {
         List<Object> vertices = new ArrayList<>();
         for (int i = 0; i < counter; i++) {
@@ -273,6 +275,7 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
         }
         return vertices;
     }
+
     public int getWeight(Object source, Object destination) throws GraphException, ListException {
         if (!containsVertex(source)) {
             throw new GraphException("Source vertex [" + source + "] does not exist.");
@@ -291,5 +294,20 @@ public class DirectedAdjacencyMatrixGraph implements Graph {
         // Si no es Integer (lo cual no debería pasar si siempre usas Integer para pesos y 0 para no arista),
         // o si es un tipo inesperado, asumimos que no hay arista para el dibujo.
         return 0;
+    }
+
+    @Override
+    public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
+        // Buscar el índice del vértice
+        int idx = indexOf(v);
+        if (idx == -1)
+            throw new GraphException("Vértice no encontrado: " + v);
+        List<EdgeWeight> edges = new ArrayList<>();
+        // Acceder a su lista enlazada de aristas
+        for (int j = 0; j < counter; j++) {
+            if (util.Utility.compare(adjacencyMatrix[idx][j], 0)!=0)
+                edges.add(new EdgeWeight(vertexList[j].data, adjacencyMatrix[idx][j]));
+        }
+        return edges;
     }
 }

@@ -208,6 +208,17 @@ public class AdjacencyListGraph implements Graph {
         return info;
     }
 
+    @Override
+    public List<Object> getVertices() throws GraphException, ListException {
+        List<Object> vertices = new ArrayList<>();
+        for (int i = 0; i < counter; i++) {
+            if (vertexList[i] != null) {
+                vertices.add(vertexList[i].data);
+            }
+        }
+        return vertices;
+    }
+
     //setteamos el atributo visitado del vertice respectivo
     private void setVisited(boolean value) {
         for (int i = 0; i < counter; i++) {
@@ -261,21 +272,17 @@ public class AdjacencyListGraph implements Graph {
      * Devuelve la lista de aristas (EdgeWeight) para un vértice dado.
      * @param v el valor del vértice cuyas aristas buscamos
      */
+    @Override
     public List<EdgeWeight> getAdjList(Object v) throws GraphException, ListException {
-        List<EdgeWeight> edges = new ArrayList<>();
         // Buscar el índice del vértice
-        int idx = -1;
-        for (int i = 0; i < counter; i++) {
-            if (vertexList[i].data.equals(v)) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx == -1) throw new GraphException("Vértice no encontrado: " + v);
-
+        int idx = indexOf(v);
+        if (idx == -1)
+            throw new GraphException("Vértice no encontrado: " + v);
+        List<EdgeWeight> edges = new ArrayList<>();
         // Acceder a su lista enlazada de aristas
         Vertex vert = vertexList[idx];
-        for (int j = 1; j <= vert.edgesList.size(); j++) {
+        int size = vert.edgesList.isEmpty()? 0 : vert.edgesList.size();
+        for (int j = 0; j < size; j++) {
             edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
         }
         return edges;

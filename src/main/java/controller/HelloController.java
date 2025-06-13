@@ -40,7 +40,7 @@ public class HelloController {
     }
 
     public void Operations(ActionEvent actionEvent) {
-        load("/ucr/lab/operations.fxml");
+        load("/ucr/lab/graphOperation.fxml");
     }
 
     public void KruskalPrim(ActionEvent actionEvent) {
