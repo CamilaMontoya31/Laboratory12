@@ -1,6 +1,7 @@
 package domain;
 
 import domain.list.ListException;
+import domain.list.SinglyLinkedList;
 import domain.queue.LinkedQueue;
 import domain.queue.QueueException;
 import domain.stack.LinkedStack;
@@ -91,12 +92,22 @@ public class AdjacencyMatrixGraph implements Graph {
         if(!containsVertex(a)||!containsVertex(b))
             throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
         adjacencyMatrix[indexOf(a)][indexOf(b)] = 1; //hay una arista
+        vertexList[indexOf(a)].edgesList.add(new EdgeWeight(b, null));
         //grafo no dirigido
         adjacencyMatrix[indexOf(b)][indexOf(a)] = 1; //hay una arista
-
+        vertexList[indexOf(b)].edgesList.add(new EdgeWeight(a, null));
     }
 
-    private int indexOf(Object element){
+    @Override
+    public int indexOfGeneral(Object element){
+        for (int i = 0; i < counter; i++) {
+            if(util.Utility.compare(vertexList[i].data, element)==0)
+                return i+1; //retorna la pos en el arreglo de objectos vertexList
+        }
+        return -1; //significa q la data de todos los vertices no coinciden con element
+    }
+
+    public int indexOf(Object element){
         for (int i = 0; i < counter; i++) {
             if(util.Utility.compare(vertexList[i].data, element)==0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
@@ -118,8 +129,10 @@ public class AdjacencyMatrixGraph implements Graph {
         if(!containsVertex(a)||!containsVertex(b))
             throw new GraphException("Cannot add edge between vertexes ["+a+"] y ["+b+"]");
         adjacencyMatrix[indexOf(a)][indexOf(b)] = weight; //hay una arista
+        vertexList[indexOf(a)].edgesList.add(new EdgeWeight(b, weight));
         //grafo no dirigido
-        adjacencyMatrix[indexOf(b)][indexOf(a)] = weight; //hay una arista
+        adjacencyMatrix[indexOf(b)][indexOf(a)] = weight; //hay una arist
+        vertexList[indexOf(b)].edgesList.add(new EdgeWeight(a, weight));// a
     }
 
     @Override
@@ -156,7 +169,9 @@ public class AdjacencyMatrixGraph implements Graph {
         int j = indexOf(b);
         if(i!=-1 && j!=-1){
             adjacencyMatrix[i][j] = 0;
+            vertexList[indexOf(a)].edgesList.remove(new EdgeWeight(b, null));
             adjacencyMatrix[j][i] = 0; //grafo no dirigido
+            vertexList[indexOf(b)].edgesList.remove(new EdgeWeight(a, null));
         }
     }
 
@@ -290,5 +305,13 @@ public class AdjacencyMatrixGraph implements Graph {
                 edges.add(new EdgeWeight(vertexList[j].data, adjacencyMatrix[idx][j]));
         }
         return edges;
+    }
+
+    @Override
+    public SinglyLinkedList getVertexList() {
+        SinglyLinkedList list = new SinglyLinkedList();
+        for (int i = 0; i < counter; i++)
+            list.add(vertexList[i]);
+        return list;
     }
 }
