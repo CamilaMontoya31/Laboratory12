@@ -12,9 +12,6 @@ import util.Utility;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SinglyLinkedListGraph implements Graph {
     public SinglyLinkedList vertexList; //lista enlazada de vértices
 
@@ -266,14 +263,14 @@ public class SinglyLinkedListGraph implements Graph {
     }
 //para recorridos de arbol de expansión minima
 @Override
-public List<Integer> getNeighbors(int vertexIndex) throws ListException {
+public List<Integer> getNeighbors(Object vertexIndex) throws ListException {
     List<Integer> neighbors = new ArrayList<>();
-    Vertex v = (Vertex) vertexList.get(vertexIndex);
+    Vertex v = (Vertex) vertexList.get((Integer) vertexIndex);
     if (v != null && v.edgesList != null) {
         Node aux = (Node) v.edgesList.getFirstNode();
         while (aux != null) {
             Utility.Edge edge = (Utility.Edge) aux.data;
-            neighbors.add((Integer) edge.destino);
+            neighbors.add((Integer) edge.getDestination());
             aux = aux.next;
         }
     }
@@ -302,8 +299,8 @@ public List<Integer> getNeighbors(int vertexIndex) throws ListException {
             Node aux = (Node) v.edgesList.getFirstNode();
             while (aux != null) {
                 Utility.Edge edge = (Utility.Edge) aux.data;
-                if (edge.destino.equals(toIndex)) {
-                    return (int) edge.peso;
+                if (edge.getDestination()==(toIndex)) {
+                    return (int) edge.getWeight();
                 }
                 aux = aux.next;
             }

@@ -7,6 +7,7 @@ import domain.stack.LinkedStack;
 import domain.stack.StackException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AdjacencyMatrixGraph implements Graph {
@@ -96,7 +97,7 @@ public class AdjacencyMatrixGraph implements Graph {
 
     }
 
-    private int indexOf(Object element){
+    public int indexOf(Object element){
         for (int i = 0; i < counter; i++) {
             if(util.Utility.compare(vertexList[i].data, element)==0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
@@ -258,13 +259,12 @@ public class AdjacencyMatrixGraph implements Graph {
         return result;
     }
     @Override
-    public List<Integer> getNeighbors(int vertexIndex) {
+    public List<Integer> getNeighbors(Object vertexValue) {
+        int index = indexOf(vertexValue); // Implementar similar a AdjacencyMatrixGraph
+        if (index == -1) return Collections.emptyList();
+
         List<Integer> neighbors = new ArrayList<>();
-        for (int j = 0; j < counter; j++) {
-            if (adjacencyMatrix[vertexIndex][j] != null) {
-                neighbors.add(j);
-            }
-        }
+        // Lógica para obtener vecinos usando index
         return neighbors;
     }
 
@@ -285,10 +285,20 @@ public class AdjacencyMatrixGraph implements Graph {
             throw new GraphException("Vértice no encontrado: " + v);
         List<EdgeWeight> edges = new ArrayList<>();
         // Acceder a su lista enlazada de aristas
-        for (int j = 1; j <= counter; j++) {
+        for (int j = 0; j <= counter-1; j++) {
             if (util.Utility.compare(adjacencyMatrix[idx][j], 0)!=0)
                 edges.add(new EdgeWeight(vertexList[j].data, adjacencyMatrix[idx][j]));
         }
         return edges;
+    }
+
+    public boolean edgeExists(int from, int to) throws GraphException {
+        int fromIndex = indexOf(from);
+        int toIndex = indexOf(to);
+        if (fromIndex == -1 || toIndex == -1) {
+            // No existen los vértices, así que claramente no hay arista
+            return false;
+        }
+        return adjacencyMatrix[fromIndex][toIndex] != null;
     }
 }

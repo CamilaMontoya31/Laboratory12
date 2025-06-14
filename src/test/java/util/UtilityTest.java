@@ -1,16 +1,13 @@
 package util;
 
 import domain.AdjacencyListGraph;
-import domain.EdgeWeight;
 import domain.GraphException;
-import domain.list.ListException;
 import org.junit.jupiter.api.Test;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static util.Utility.kruskal;
 import static util.Utility.Edge;
 

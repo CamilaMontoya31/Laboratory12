@@ -1,24 +1,12 @@
 package util;
 
-import domain.*;
-import domain.list.ListException;
-import domain.list.SinglyLinkedList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.util.converter.IntegerStringConverter;
 import ucr.lab.HelloApplication;
 
-import javafx.geometry.Point2D;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 

@@ -282,16 +282,16 @@ public class AdjacencyListGraph implements Graph {
         // Acceder a su lista enlazada de aristas
         Vertex vert = vertexList[idx];
         int size = vert.edgesList.isEmpty()? 0 : vert.edgesList.size();
-        for (int j = 0; j < size; j++) {
+        for (int j = 0; j < size-1; j++) {
             edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
         }
         return edges;
     }
     @Override
-    public List<Integer> getNeighbors(int vertexIndex) throws ListException {
+    public List<Integer> getNeighbors(Object vertexIndex) throws ListException {
         int i = 1;//contador
         List<Integer> neighbors = new ArrayList<>();
-        Vertex v = vertexList[vertexIndex];
+        Vertex v = vertexList[(int) vertexIndex];
         if (v != null && v.edgesList != null) {
             Node aux = v.edgesList.getFirstNode();
             while (aux != null) {

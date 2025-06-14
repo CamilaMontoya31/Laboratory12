@@ -202,7 +202,7 @@ public class DirectedSinglyLinkedListGraph implements Graph {
     }
 
     @Override
-    public List<Integer> getNeighbors(int vertex) throws ListException {
+    public List<Integer> getNeighbors(Object vertex) throws ListException {
         return List.of();
     }
 

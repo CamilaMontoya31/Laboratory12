@@ -116,145 +116,171 @@ public class Utility {
     }
 
     //Algoritmo de Kruskal
-    // Clase para el Union-Find (Disjoint Set)
+    // Clase Union-Find mejorada
     static class UnionFind {
-        int[] padre;
+        private int[] parent;
+        private int[] rank;
 
         UnionFind(int n) {
-            padre = new int[n];
+            parent = new int[n];
+            rank = new int[n];
             for (int i = 0; i < n; i++) {
-                padre[i] = i;
+                parent[i] = i;
+                rank[i] = 0;
             }
         }
 
-        int encontrar(int x) {
-            if (padre[x] != x) {
-                padre[x] = encontrar(padre[x]); // path compression
+        public int find(int x) {
+            if (parent[x] != x) {
+                parent[x] = find(parent[x]); // Path compression
             }
-            return padre[x];
+            return parent[x];
         }
 
-        boolean unir(int x, int y) {
-            int raizX = encontrar(x);
-            int raizY = encontrar(y);
-            if (raizX == raizY) return false; // ya están en el mismo conjunto
-            padre[raizX] = raizY;
-            return true;
-        }
-        boolean unir(Object x, Object y) {
-            Object raizX = encontrar((Integer) x);
-            Object raizY = encontrar((Integer) y);
-            if (raizX == raizY) return false; // ya están en el mismo conjunto
-            padre[(int) raizX] = (int) raizY;
+        public boolean union(int x, int y) {
+            int rootX = find(x);
+            int rootY = find(y);
+
+            if (rootX == rootY) return false; // Already in the same set
+
+            // Union by rank
+            if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY;
+            } else if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX;
+            } else {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
             return true;
         }
     }
 
-    // Algoritmo de Kruskal
-    // Clase para representar una arista (edge)
+    // Clase Edge mejorada con tipos genéricos
     public static class Edge implements Comparable<Edge> {
-        public Object origen;
-        public Object destino;
-        public Object peso;
+        private final Object source;
+        private final Object destination;
+        private final Object weight;
 
-        public Edge(int origen, int destino, int peso) {
-            this.origen = origen;
-            this.destino = destino;
-            this.peso = peso;
-        }
-        public Object getFrom() {
-            return origen;
+        public Edge(int source, int destination, int weight) {
+            this.source = source;
+            this.destination = destination;
+            this.weight = weight;
         }
 
-        public Object getTo() {
-            return destino;
+        public int getSource() {
+            return (int) source;
+        }
+
+        public int getDestination() {
+            return (int) destination;
+        }
+        public Object getSourceO() {
+            return source;
+        }
+
+        public Object getDestinationO() {
+            return destination;
         }
 
         public Object getWeight() {
-            return peso;
+            return weight;
         }
+
         @Override
-        public int compareTo(Edge otra) {
-            return Integer.compare((Integer) this.peso, (Integer)otra.peso); // ordenar por peso ascendente
+        public int compareTo(Edge other) {
+            return compare(this.weight, other.weight);
         }
 
         @Override
         public String toString() {
-            return "Edge{" +
-                    "origen=" + origen +
-                    ", destino=" + destino +
-                    ", peso=" + peso +
-                    '}';
+            return String.format("%d - %d (%d)", source, destination, weight);
         }
     }
 
-    public static List<Edge> kruskal(List<Edge> aristas, int n) {
-        List<Edge> resultado = new ArrayList<>(); // E(1) = aristas del MST
-        Collections.sort(aristas); // ordenar por peso ascendente
-        UnionFind uf = new UnionFind(10); // n = número de vértices
+    // Algoritmo de Kruskal mejorado
+    public static List<Edge> kruskal(List<Edge> edges, int vertexCount) {
+        List<Edge> mst = new ArrayList<>();
+        UnionFind uf = new UnionFind(vertexCount);
 
-        for (Edge e : aristas) {
-            if (resultado.size() == n - 1) break; // ya tenemos n-1 aristas
-            if (uf.unir(e.origen, e.destino)) {
-                resultado.add(e);
+        // Ordenar aristas por peso ascendente
+        Collections.sort(edges);
+
+        for (Edge edge : edges) {
+            if (mst.size() == vertexCount - 1) break;
+
+            if (uf.union(edge.getSource(), edge.getDestination())) {
+                mst.add(edge);
             }
         }
 
-        return resultado;
+        // Verificar si se formó un MST completo
+        //if (mst.size() != vertexCount - 1) {
+         //   throw new IllegalArgumentException("El grafo no es conexo. No se puede construir un MST completo.");
+        //}
+
+        return mst;
     }
-    //Prim
-    public static List<Edge> prim(Graph graph) throws ListException, GraphException {
-        List<Edge> resultado = new ArrayList<>(); // = aristas del MST
-        int V = graph.size();
-        int[] key = new int[V];
-        int[] parent = new int[V];
-        boolean[] inMST = new boolean[V];
+
+    // Algoritmo de Prim mejorado
+    public static List<Edge> prim(Graph graph) throws GraphException, ListException {
+        int vertexCount = graph.size();
+        List<Edge> mst = new ArrayList<>();
+
+        // Estructuras para el algoritmo
+        int[] parent = new int[vertexCount];
+        int[] key = new int[vertexCount];
+        boolean[] inMST = new boolean[vertexCount];
 
         Arrays.fill(key, Integer.MAX_VALUE);
         key[0] = 0;
         parent[0] = -1;
 
-        for (int count = 0; count < V - 1; count++) {
-            int u = minKey(key, inMST);
+        PriorityQueue<Node> minHeap = new PriorityQueue<>(vertexCount, Comparator.comparingInt(n -> n.key));
+        minHeap.add(new Node(0, key[0]));
+
+        while (!minHeap.isEmpty()) {
+            int u = minHeap.poll().vertex;
+
+            if (inMST[u]) continue;
             inMST[u] = true;
 
-            for (int v : graph.getNeighbors(u)) {
+            // Agregar arista al MST (excepto para el primer nodo)
+            if (parent[u] != -1) {
+                int weight = graph.getWeight(parent[u], u);
+                mst.add(new Edge(parent[u], u, weight));
+            }
+
+            // Obtener todos los vértices adyacentes
+            List<Integer> neighbors = graph.getNeighbors(u);
+            for (int v : neighbors) {
                 int weight = graph.getWeight(u, v);
+
                 if (!inMST[v] && weight < key[v]) {
-                    key[v] = weight;
                     parent[v] = u;
-                }
-                for (int i = 1; i < v ; i++) {
-                    resultado.add(new Edge(parent[1],i,graph.getWeight(parent[i],i)));
+                    key[v] = weight;
+                    minHeap.add(new Node(v, key[v]));
                 }
             }
         }
 
-        printMST(parent, key);
-
-        return resultado;
-    }
-
-    private static int minKey(int[] key, boolean[] mstSet) {
-        int min = Integer.MAX_VALUE, minIndex = -1;
-
-        for (int v = 0; v < key.length; v++) {
-            if (!mstSet[v] && key[v] < min) {
-                min = key[v];
-                minIndex = v;
-            }
+        // Verificar si se formó un MST completo
+        if (mst.size() != vertexCount - 1) {
+            throw new GraphException("El grafo no es conexo. No se puede construir un MST completo.");
         }
 
-        return minIndex;
+        return mst;
     }
 
-    private static void printMST(int[] parent, int[] key) {
-        System.out.println("Edge \tWeight");
-        for (int i = 1; i < parent.length; i++) {
-            System.out.println(parent[i] + " - " + i + "\t" + key[i]);
+    // Clase auxiliar para el heap de Prim
+    private static class Node {
+        int vertex;
+        int key;
+
+        public Node(int vertex, int key) {
+            this.vertex = vertex;
+            this.key = key;
         }
     }
-
-
 
 }
