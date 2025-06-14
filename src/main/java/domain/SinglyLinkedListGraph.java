@@ -77,7 +77,18 @@ public class SinglyLinkedListGraph implements Graph {
 
     }
 
-    private int indexOf(Object element) throws ListException {
+    @Override
+    public int indexOfGeneral(Object element) throws ListException {
+        for(int i=1;i<=vertexList.size();i++){
+            Vertex vertex = (Vertex)vertexList.getNode(i).data;
+            if(util.Utility.compare(vertex.data, element)==0){
+                return i; //encontro el vertice
+            }
+        }//for
+        return -1; //significa q la data de todos los vertices no coinciden con element
+    }
+
+    public int indexOf(Object element) throws ListException {
         for(int i=1;i<=vertexList.size();i++){
             Vertex vertex = (Vertex)vertexList.getNode(i).data;
             if(util.Utility.compare(vertex.data, element)==0){
@@ -306,5 +317,10 @@ public List<Integer> getNeighbors(Object vertexIndex) throws ListException {
             }
         }
         return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public SinglyLinkedList getVertexList() {
+        return vertexList;
     }
 }

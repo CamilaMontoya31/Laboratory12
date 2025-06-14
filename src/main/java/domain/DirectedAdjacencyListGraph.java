@@ -82,7 +82,16 @@ public class DirectedAdjacencyListGraph implements Graph {
 
     }
 
-    private int indexOf(Object element){
+    @Override
+    public int indexOfGeneral(Object element){
+        for (int i = 0; i < counter; i++) {
+            if(util.Utility.compare(vertexList[i].data, element)==0)
+                return i+1; //retorna la pos en el arreglo de objectos vertexList
+        }
+        return -1; //significa q la data de todos los vertices no coinciden con element
+    }
+
+    public int indexOf(Object element){
         for (int i = 0; i < counter; i++) {
             if(util.Utility.compare(vertexList[i].data, element)==0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
@@ -308,6 +317,14 @@ public class DirectedAdjacencyListGraph implements Graph {
             edges.add((EdgeWeight) vert.edgesList.getNode(j).data);
         }
         return edges;
+    }
+
+    @Override
+    public SinglyLinkedList getVertexList() {
+        SinglyLinkedList list = new SinglyLinkedList();
+        for (int i = 0; i < counter; i++)
+            list.add(vertexList[i]);
+        return list;
     }
 }
 

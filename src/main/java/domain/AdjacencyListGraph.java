@@ -85,7 +85,16 @@ public class AdjacencyListGraph implements Graph {
 
     }
 
-    private int indexOf(Object element){
+    @Override
+    public int indexOfGeneral(Object element){
+        for (int i = 0; i < counter; i++) {
+            if(util.Utility.compare(vertexList[i].data, element)==0)
+                return i+1; //retorna la pos en el arreglo de objectos vertexList
+        }
+        return -1; //significa q la data de todos los vertices no coinciden con element
+    }
+
+    public int indexOf(Object element){
         for (int i = 0; i < counter; i++) {
             if(util.Utility.compare(vertexList[i].data, element)==0)
                 return i; //retorna la pos en el arreglo de objectos vertexList
@@ -256,6 +265,7 @@ public class AdjacencyListGraph implements Graph {
         }
         return vertexList[index].edgesList; // Retorna la lista de aristas (vecinos)
     }
+
     /**
      * Devuelve una lista de todos los vértices (sus datos) almacenados en el grafo.
      */
@@ -287,6 +297,7 @@ public class AdjacencyListGraph implements Graph {
         }
         return edges;
     }
+
     @Override
     public List<Integer> getNeighbors(Object vertexIndex) throws ListException {
         int i = 1;//contador
@@ -304,7 +315,6 @@ public class AdjacencyListGraph implements Graph {
         return neighbors;
     }
 
-
     @Override
     public int getWeight(int fromIndex, int toIndex) throws ListException {
         Vertex v = vertexList[fromIndex];
@@ -320,5 +330,11 @@ public class AdjacencyListGraph implements Graph {
         return Integer.MAX_VALUE;
     }
 
-
+    @Override
+    public SinglyLinkedList getVertexList() {
+        SinglyLinkedList list = new SinglyLinkedList();
+        for (int i = 0; i < counter; i++)
+            list.add(vertexList[i]);
+        return list;
+    }
 }

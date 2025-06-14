@@ -38,6 +38,12 @@ public class Utility {
         return min + random.nextInt(max - min + 1);
     }
 
+    public static double random(double min, double max) {
+        // Generación de un número aleatorio en el rango [min, max]
+        double value = min + (max - min) * random.nextDouble();
+        return Math.round(value * 100.0) / 100.0;
+    }
+
     public static int compare(Object a, Object b) {
         switch (instanceOf(a, b)){
             case "Integer":

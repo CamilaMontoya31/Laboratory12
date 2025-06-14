@@ -323,7 +323,143 @@ public class FXUtility {
         arrowHead.setFill(Color.BLACK);
         pane.getChildren().add(arrowHead);
     }
+    public static <G, V> void drawDirectedGraph(
+            G graph,
+            Pane pane,
+            Supplier<List<V>> verticesSupplier,
+            Function<V, List<EdgeWeight>> edgesSupplier
+    ) {
+        pane.getChildren().clear();
 
+        List<V> vertices = verticesSupplier.get();
+        int n = vertices.size();
+
+        double radius = 100;
+        double centerX = pane.getWidth() / 2;
+        double centerY = pane.getHeight() / 2;
+
+        Map<V, Point2D> pos = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            double angle = 2 * Math.PI * i / n;
+            double x = centerX + radius * Math.cos(angle);
+            double y = centerY + radius * Math.sin(angle);
+            V v = vertices.get(i);
+            pos.put(v, new Point2D(x, y));
+
+            Circle c = new Circle(x, y, 20);
+            c.setFill(Color.LIGHTBLUE);
+            c.setStroke(Color.BLACK);
+            Text txt = new Text(x - 5, y + 5, v.toString());
+            pane.getChildren().addAll(c, txt);
+        }
+
+        Set<String> seen = new HashSet<>();
+        for (V from : vertices) {
+            Point2D p1 = pos.get(from);
+            for (EdgeWeight ew : edgesSupplier.apply(from)) {
+                V to = (V) ew.getEdge();
+                Point2D p2 = pos.get(to);
+                String key = from.toString() + "->" + to.toString();
+
+                if (seen.contains(key)) continue;
+                seen.add(key);
+
+                if (from.equals(to)) {
+                    // Bucle: dibujar un arco circular alrededor del nodo
+                    QuadCurve loop = new QuadCurve();
+                    loop.setStartX(p1.getX());
+                    loop.setStartY(p1.getY() - 20);
+                    loop.setEndX(p1.getX() + 20);
+                    loop.setEndY(p1.getY());
+                    loop.setControlX(p1.getX() + 30);
+                    loop.setControlY(p1.getY() - 30);
+                    loop.setStroke(Color.GRAY);
+                    loop.setFill(null);
+                    pane.getChildren().add(loop);
+
+                    // Texto del peso
+                    if (ew.getWeight() != null) {
+                        Text w = new Text(p1.getX() + 25, p1.getY() - 25, ew.getWeight().toString());
+                        w.setFill(Color.RED);
+                        pane.getChildren().add(w);
+                    }
+
+                } else {
+                    boolean reverseExists = seen.contains(to.toString() + "->" + from.toString());
+                    // Si existe la inversa, dibujar como curva
+                    if (reverseExists) {
+                        QuadCurve curve = new QuadCurve();
+                        curve.setStartX(p1.getX());
+                        curve.setStartY(p1.getY());
+                        curve.setEndX(p2.getX());
+                        curve.setEndY(p2.getY());
+                        curve.setControlX((p1.getX() + p2.getX()) / 2 + 20);
+                        curve.setControlY((p1.getY() + p2.getY()) / 2 - 20);
+                        curve.setStroke(Color.GRAY);
+                        curve.setFill(null);
+                        pane.getChildren().add(curve);
+
+                        // Flecha en curva
+                        addArrowHead(pane, curve.getControlX(), curve.getControlY(), p2.getX(), p2.getY());
+
+                        // Peso
+                        if (ew.getWeight() != null) {
+                            Text w = new Text((p1.getX() + p2.getX()) / 2 + 10, (p1.getY() + p2.getY()) / 2 - 10, ew.getWeight().toString());
+                            w.setFill(Color.RED);
+                            pane.getChildren().add(w);
+                        }
+
+                    } else {
+                        // Línea recta con flecha
+                        Line line = new Line(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+                        line.setStroke(Color.GRAY);
+                        pane.getChildren().add(line);
+
+                        addArrowHead(pane, p1.getX(), p1.getY(), p2.getX(), p2.getY());
+
+                        if (ew.getWeight() != null) {
+                            double mx = (p1.getX() + p2.getX()) / 2;
+                            double my = (p1.getY() + p2.getY()) / 2;
+                            Text w = new Text(mx, my, ew.getWeight().toString());
+                            w.setFill(Color.RED);
+                            pane.getChildren().add(w);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Dibuja una flecha simple al final de una arista.
+     */
+    private static void addArrowHead(Pane pane, double x1, double y1, double x2, double y2) {
+        double arrowLength = 10;
+        double angle = Math.atan2(y2 - y1, x2 - x1);
+
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
+
+        // Punto final antes del nodo destino (acortar flecha para que no entre al nodo)
+        double px = x2 - cos * 20;
+        double py = y2 - sin * 20;
+
+        // Lados del triángulo
+        double leftX = px - arrowLength * Math.cos(angle - Math.PI / 6);
+        double leftY = py - arrowLength * Math.sin(angle - Math.PI / 6);
+
+        double rightX = px - arrowLength * Math.cos(angle + Math.PI / 6);
+        double rightY = py - arrowLength * Math.sin(angle + Math.PI / 6);
+
+        Polygon arrowHead = new Polygon();
+        arrowHead.getPoints().addAll(
+                px, py,
+                leftX, leftY,
+                rightX, rightY
+        );
+        arrowHead.setFill(Color.BLACK);
+        pane.getChildren().add(arrowHead);
+    }
 }//END CLASS
 
 
